@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+  <meta http-equiv="X-Frame-Options" content="DENY"/>
+  <meta name="referrer" content="no-referrer"/>
+  <title>Kelvio — TikTok Profile Inspector</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #07080d;
+      --surface:     #0e0f17;
+      --surface2:    #161722;
+      --surface3:    #1e1f2e;
+      --border:      rgba(130,140,255,0.08);
+      --border2:     rgba(130,140,255,0.16);
+      --text:        #eeeeff;
+      --text2:       #a8aac8;
+      --muted:       #4a4d6a;
+      --muted2:      #7476a0;
+      --accent:      #6c63ff;
+      --accent2:     #a78bfa;
+      --accent-h:    #5a52e0;
+      --accent-soft: rgba(108,99,255,0.13);
+      --accent-glow: rgba(108,99,255,0.28);
+      --cyan:        #22d3ee;
+      --cyan-soft:   rgba(34,211,238,0.10);
+      --green:       #34d399;
+      --green-soft:  rgba(52,211,153,0.10);
+      --yellow:      #fbbf24;
+      --yellow-soft: rgba(251,191,36,0.10);
+      --red:         #f87171;
+      --red-soft:    rgba(248,113,113,0.10);
+      --purple:      #c084fc;
+      --purple-soft: rgba(192,132,252,0.10);
+      --shadow:      0 2px 24px rgba(0,0,0,0.5);
+      --shadow-lg:   0 8px 56px rgba(0,0,0,0.6);
+      --r:  16px;
+      --rs: 10px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px 60px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Noise grain overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: 0.6;
+    }
+
+    /* Glow blobs */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 45% at 20% 0%,   rgba(108,99,255,0.10) 0%, transparent 65%),
+        radial-gradient(ellipse 55% 38% at 85% 95%,  rgba(167,139,250,0.08) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 30% at 65% 40%,  rgba(34,211,238,0.04) 0%, transparent 60%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .container { position: relative; z-index: 1; width: 100%; max-width: 620px; }
+
+    /* ══════════════════════════════════════
+       BRAND HEADER
+    ══════════════════════════════════════ */
+    header { text-align: center; margin-bottom: 34px; padding-top: 8px; }
+
+    .brand-lockup {
+      display: inline-flex; align-items: center; gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    /* K logo mark */
+    .brand-logo {
+      width: 56px; height: 56px;
+      background: linear-gradient(145deg, #6c63ff 0%, #a78bfa 100%);
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow:
+        0 0 0 1px rgba(108,99,255,0.35),
+        0 8px 32px rgba(108,99,255,0.38);
+      flex-shrink: 0;
+      position: relative; overflow: hidden;
+    }
+    .brand-logo::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 55%);
+    }
+    .brand-logo svg {
+      width: 32px; height: 32px;
+      position: relative; z-index: 1;
+    }
+
+    .brand-text { text-align: left; }
+
+    .brand-name {
+      font-size: 36px; font-weight: 800; letter-spacing: -2px;
+      line-height: 1; color: var(--text);
+    }
+    .brand-name .k-el { color: var(--text); }
+    .brand-name .vio {
+      background: linear-gradient(135deg, #6c63ff 0%, #a78bfa 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .brand-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 9.5px; color: var(--muted); letter-spacing: 2.5px;
+      text-transform: uppercase; margin-top: 5px; font-weight: 300;
+    }
+
+    .brand-desc {
+      font-size: 14px; color: var(--muted2); margin-top: 6px;
+      font-weight: 400; letter-spacing: -0.1px;
+    }
+
+    .status-line {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 12px;
+      font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted);
+    }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* ══════════════════════════════════════
+       SEARCH CARD
+    ══════════════════════════════════════ */
+    .search-card {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--r); padding: 16px 16px 13px;
+      margin-bottom: 16px; box-shadow: var(--shadow);
+      position: relative; overflow: hidden;
+    }
+    .search-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(108,99,255,0.6), rgba(167,139,250,0.4), transparent);
+    }
+
+    .input-row { display: flex; gap: 10px; }
+    .input-group { flex: 1; position: relative; }
+
+    .prefix {
+      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      color: var(--accent); font-family: 'DM Mono', monospace;
+      font-size: 16px; pointer-events: none; font-weight: 500;
+    }
+
+    #usernameInput {
+      width: 100%; background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--rs); padding: 13px 13px 13px 30px;
+      color: var(--text); font-family: 'DM Mono', monospace;
+      font-size: 14px; outline: none; font-weight: 300;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    #usernameInput:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft), 0 0 20px var(--accent-glow);
+    }
+    #usernameInput::placeholder { color: var(--muted); }
+
+    #checkBtn {
+      background: linear-gradient(135deg, #6c63ff 0%, #a78bfa 100%);
+      color: #fff; border: none; border-radius: var(--rs);
+      padding: 13px 24px; font-family: 'DM Sans', sans-serif; font-weight: 700;
+      font-size: 14px; cursor: pointer; white-space: nowrap;
+      letter-spacing: -0.2px;
+      transition: opacity .18s, transform .1s, box-shadow .18s;
+      box-shadow: 0 2px 16px rgba(108,99,255,0.4);
+      position: relative; overflow: hidden;
+    }
+    #checkBtn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+    }
+    #checkBtn:hover   { opacity: 0.9; box-shadow: 0 4px 28px rgba(108,99,255,0.55); }
+    #checkBtn:active  { transform: scale(.97); }
+    #checkBtn:disabled { opacity: .3; cursor: not-allowed; box-shadow: none; }
+
+    .rate-notice {
+      font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 300;
+      color: var(--muted); text-align: center; margin-top: 10px; letter-spacing: .3px;
+    }
+
+    /* ══════════════════════════════════════
+       LOADING / ERROR
+    ══════════════════════════════════════ */
+    .loading {
+      display: none; text-align: center; padding: 44px;
+      color: var(--muted2); font-family: 'DM Mono', monospace; font-size: 12px;
+    }
+    .spinner {
+      width: 26px; height: 26px;
+      border: 2px solid var(--border2);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin .75s linear infinite; margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-box {
+      display: none;
+      background: rgba(248,113,113,0.07);
+      border: 1px solid rgba(248,113,113,0.22);
+      border-radius: var(--rs); padding: 12px 18px; color: #fca5a5;
+      font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 300;
+      text-align: center; margin-bottom: 12px;
+    }
+
+    /* ══════════════════════════════════════
+       RESULT CARD
+    ══════════════════════════════════════ */
+    .result {
+      display: none;
+      border-radius: var(--r); overflow: hidden;
+      border: 1px solid var(--border2);
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 16px;
+      animation: fadeUp .42s cubic-bezier(.22,1,.36,1);
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(18px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* ── Profile Header ── */
+    .profile-header {
+      background: linear-gradient(135deg, var(--surface2) 0%, var(--surface3) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 22px; display: flex; align-items: flex-start; gap: 16px;
+      position: relative; overflow: hidden;
+    }
+    .profile-header::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(108,99,255,0.5), rgba(167,139,250,0.3), transparent);
+    }
+
+    .avatar {
+      width: 70px; height: 70px; border-radius: 14px; object-fit: cover;
+      border: 2px solid var(--border2);
+      box-shadow: 0 0 0 2px rgba(108,99,255,0.45), 0 4px 18px rgba(108,99,255,0.25);
+      flex-shrink: 0;
+    }
+    .avatar-fallback {
+      width: 70px; height: 70px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--surface3), var(--surface2));
+      border: 2px solid var(--border2);
+      box-shadow: 0 0 0 2px rgba(108,99,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; flex-shrink: 0;
+    }
+
+    .profile-info { flex: 1; min-width: 0; }
+    .pname {
+      font-size: 19px; font-weight: 800; letter-spacing: -.5px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      color: var(--text);
+    }
+    .phandle {
+      font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 300;
+      color: var(--accent2); margin-top: 3px;
+    }
+    .badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 600; padding: 3px 9px;
+      border-radius: 6px; letter-spacing: .1px; white-space: nowrap;
+      font-family: 'DM Mono', monospace;
+    }
+    .b-v  { background: rgba(34,211,238,0.10);  color: var(--cyan);   border: 1px solid rgba(34,211,238,0.2); }
+    .b-e  { background: var(--yellow-soft);     color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
+    .b-s  { background: var(--green-soft);      color: var(--green);  border: 1px solid rgba(52,211,153,0.2); }
+    .b-c  { background: var(--purple-soft);     color: var(--purple); border: 1px solid rgba(192,132,252,0.2); }
+    .b-p  { background: var(--surface3);        color: var(--muted2); border: 1px solid var(--border); }
+    .b-bn { background: var(--red-soft);        color: var(--red);    border: 1px solid rgba(248,113,113,0.2); }
+
+    /* ── Section ── */
+    .section { background: var(--surface); }
+    .section + .section { border-top: 1px solid var(--border); }
+
+    .sec-head {
+      display: flex; align-items: center; gap: 9px;
+      padding: 11px 20px 10px;
+      background: var(--surface2); border-bottom: 1px solid var(--border);
+    }
+    .sec-icon  { font-size: 13px; }
+    .sec-title {
+      font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 300;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 2.5px;
+    }
+
+    /* ── Bio ── */
+    .bio-body { padding: 14px 20px; font-size: 13px; color: var(--text2); line-height: 1.65; }
+    .slinks { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+    .slink {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 300;
+      padding: 5px 12px; border-radius: 8px; text-decoration: none;
+      transition: opacity .18s, transform .18s;
+      border: 1px solid transparent;
+    }
+    .slink:hover { opacity: .72; transform: translateY(-1px); }
+    .sl-bio { background: var(--accent-soft); color: var(--accent2); border-color: rgba(108,99,255,0.18); }
+    .sl-ig  { background: rgba(236,72,153,0.09); color: #f9a8d4; border-color: rgba(236,72,153,0.15); }
+    .sl-yt  { background: var(--red-soft);   color: var(--red);  border-color: rgba(248,113,113,0.15); }
+    .sl-tw  { background: var(--cyan-soft);  color: var(--cyan); border-color: rgba(34,211,238,0.15); }
+
+    /* ── Date Cards ── */
+    .date-body {
+      padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .dc {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px; text-align: center;
+    }
+    .dc.hl {
+      background: linear-gradient(135deg, rgba(108,99,255,0.07), rgba(167,139,250,0.05));
+      border-color: rgba(108,99,255,0.18);
+    }
+    .dc-lbl {
+      font-family: 'DM Mono', monospace; font-size: 8.5px; font-weight: 300;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+    }
+    .dc-val { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -.3px; }
+    .dc-val.xl { font-size: 22px; font-weight: 800; }
+    .dc-sub { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 300; color: var(--muted2); margin-top: 4px; }
+
+    /* ── Stats Grid ── */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1px; background: var(--border);
+    }
+    .sc {
+      background: var(--surface); padding: 16px 8px; text-align: center;
+      transition: background .13s;
+    }
+    .sc:hover { background: var(--surface2); }
+    .sc-val { font-size: 20px; font-weight: 800; letter-spacing: -.6px; color: var(--text); }
+    .sc-lbl {
+      font-family: 'DM Mono', monospace; font-size: 8.5px; font-weight: 300;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;
+    }
+
+    /* ── Row List ── */
+    .ri {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; gap: 14px; transition: background .12s;
+      border-bottom: 1px solid var(--border);
+    }
+    .ri:last-child { border-bottom: none; }
+    .ri:hover { background: var(--surface2); }
+    .ri-key {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 500; color: var(--text2); flex-shrink: 0;
+    }
+    .ri-ico { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
+    .ri-val {
+      font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 300;
+      color: var(--text); text-align: right; word-break: break-all;
+    }
+
+    /* ── Pill ── */
+    .pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
+      font-family: 'DM Mono', monospace;
+    }
+    .p-g  { background: var(--green-soft);  color: var(--green);  border: 1px solid rgba(52,211,153,0.2); }
+    .p-r  { background: var(--red-soft);    color: var(--red);    border: 1px solid rgba(248,113,113,0.2); }
+    .p-gr { background: var(--surface3);    color: var(--muted2); border: 1px solid var(--border); }
+
+    /* ── Settings ── */
+    .settings-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--border);
+    }
+    .stc { background: var(--surface); padding: 14px 6px; text-align: center; transition: background .13s; }
+    .stc:hover { background: var(--surface2); }
+    .stc-icon { font-size: 18px; margin-bottom: 5px; }
+    .stc-lbl {
+      font-family: 'DM Mono', monospace; font-size: 8px; font-weight: 300;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+    }
+    .stc-val { font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace; }
+    .sv-on  { color: var(--green); }
+    .sv-off { color: var(--red); }
+    .sv-na  { color: var(--muted); }
+
+    /* ── Card Footer ── */
+    .card-footer {
+      background: var(--surface2); border-top: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .card-footer-text {
+      font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 300;
+      color: var(--muted); letter-spacing: .3px;
+    }
+    .kelvio-inline {
+      font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 11px;
+      background: linear-gradient(135deg, #6c63ff, #a78bfa);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; letter-spacing: -.4px;
+    }
+
+    /* ══════════════════════════════════════
+       COPY BAR
+    ══════════════════════════════════════ */
+    .copy-bar {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--r); padding: 14px 16px;
+      margin-bottom: 28px; box-shadow: var(--shadow);
+      align-items: center; justify-content: space-between; gap: 12px;
+      animation: fadeUp .38s cubic-bezier(.22,1,.36,1);
+    }
+    .copy-bar-left { display: flex; align-items: center; gap: 10px; }
+    .copy-bar-icon { font-size: 20px; }
+    .copy-bar-title { font-size: 13px; font-weight: 700; color: var(--text); }
+    .copy-bar-sub   { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 300; color: var(--muted); margin-top: 2px; }
+
+    #copyBtn {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--surface3); color: var(--text);
+      border: 1px solid var(--border2);
+      border-radius: var(--rs); padding: 10px 18px;
+      font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px;
+      cursor: pointer; transition: background .18s, transform .1s, border-color .18s, color .18s;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    #copyBtn:hover  { background: var(--surface2); border-color: var(--accent); color: var(--accent2); }
+    #copyBtn:active { transform: scale(.97); }
+    #copyBtn.done   { background: var(--green-soft); border-color: rgba(52,211,153,0.3); color: var(--green); }
+    #copyBtn svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    footer {
+      text-align: center; font-family: 'DM Mono', monospace;
+      font-size: 10px; font-weight: 300;
+      color: var(--muted); letter-spacing: .4px; padding-bottom: 8px;
+    }
+    footer strong {
+      font-weight: 700;
+      background: linear-gradient(135deg, #6c63ff, #a78bfa);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 430px) {
+      .stats-grid    { grid-template-columns: repeat(2,1fr); }
+      .settings-grid { grid-template-columns: repeat(2,1fr); }
+      .date-body     { grid-template-columns: 1fr; }
+      .brand-name    { font-size: 30px; }
+      .brand-logo    { width: 48px; height: 48px; border-radius: 14px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- BRAND HEADER -->
+  <header>
+    <div class="brand-lockup">
+      <div class="brand-logo">
+        <!-- K lettermark -->
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 6v20M8 16l10-10M8 16l10 10" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name"><span class="k-el">Kel</span><span class="vio">vio</span></div>
+        <div class="brand-tag">TikTok Profile Inspector</div>
+      </div>
+    </div>
+    <p class="brand-desc">Instant profile analysis — account age, stats & more</p>
+    <div class="status-line">
+      <span class="status-dot"></span>
+      <span>live · no data stored · secured</span>
+    </div>
+  </header>
+
+  <!-- SEARCH -->
+  <div class="search-card">
+    <div class="input-row">
+      <div class="input-group">
+        <span class="prefix">@</span>
+        <input id="usernameInput" type="text" placeholder="enter tiktok username"
+               autocomplete="off" maxlength="50" spellcheck="false"/>
+      </div>
+      <button id="checkBtn" onclick="checkUser()">Inspect →</button>
+    </div>
+    <div class="rate-notice">🔒 Kelvio · rate limited · no data stored · requests secured</div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>Kelvio is inspecting the profile…
+  </div>
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- RESULT -->
+  <div class="result" id="result">
+
+    <div class="profile-header">
+      <div id="avatarWrap"></div>
+      <div class="profile-info">
+        <div class="pname"   id="pName"></div>
+        <div class="phandle" id="pHandle"></div>
+        <div class="badges"  id="pBadges"></div>
+      </div>
+    </div>
+
+    <div class="section" id="secBio" style="display:none">
+      <div class="sec-head"><span class="sec-icon">✍️</span><span class="sec-title">Bio & Social Links</span></div>
+      <div class="bio-body">
+        <div id="bioText"></div>
+        <div class="slinks" id="socialLinks"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head"><span class="sec-icon">📅</span><span class="sec-title">Account Age</span></div>
+      <div class="date-body">
+        <div class="dc hl">
+          <div class="dc-lbl">Created On</div>
+          <div class="dc-val" id="dCreated">—</div>
+          <div class="dc-sub" id="dStamp"></div>
+        </div>
+        <div class="dc hl">
+          <div class="dc-lbl">Age</div>
+          <div class="dc-val xl" id="dAge">—</div>
+          <div class="dc-sub" id="dDays"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head"><span class="sec-icon">📊</span><span class="sec-title">Statistics</span></div>
+      <div class="stats-grid">
+        <div class="sc"><div class="sc-val" id="sFollowers">—</div><div class="sc-lbl">Followers</div></div>
+        <div class="sc"><div class="sc-val" id="sFollowing">—</div><div class="sc-lbl">Following</div></div>
+        <div class="sc"><div class="sc-val" id="sLikes">—</div><div class="sc-lbl">Total Likes</div></div>
+        <div class="sc"><div class="sc-val" id="sVideos">—</div><div class="sc-lbl">Videos</div></div>
+        <div class="sc"><div class="sc-val" id="sViews">—</div><div class="sc-lbl">Total Views</div></div>
+        <div class="sc"><div class="sc-val" id="sFriends">—</div><div class="sc-lbl">Friends</div></div>
+        <div class="sc"><div class="sc-val" id="sDigg">—</div><div class="sc-lbl">Digg</div></div>
+        <div class="sc"><div class="sc-val" id="sLives">—</div><div class="sc-lbl">Lives</div></div>
+        <div class="sc"><div class="sc-val" id="sPinned">—</div><div class="sc-lbl">Pinned</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head"><span class="sec-icon">👤</span><span class="sec-title">Account Info</span></div>
+      <div class="row-list">
+        <div class="ri"><div class="ri-key"><span class="ri-ico">🌍</span>Region</div><div class="ri-val" id="iRegion">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">🗣️</span>Language</div><div class="ri-val" id="iLang">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">🔐</span>Account Type</div><div class="ri-val" id="iAccType">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">❤️</span>Favorite List</div><div class="ri-val" id="iOpenFav">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">👍</span>Liked Videos</div><div class="ri-val" id="iShowLiked">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">📡</span>Room ID (Live)</div><div class="ri-val" id="iRoomId">—</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head"><span class="sec-icon">🛒</span><span class="sec-title">Commerce & Seller</span></div>
+      <div class="row-list">
+        <div class="ri"><div class="ri-key"><span class="ri-ico">💼</span>Commerce User</div><div class="ri-val" id="cCommerce">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">🏪</span>TT Seller</div><div class="ri-val" id="cSeller">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">🏬</span>Has Shop</div><div class="ri-val" id="cHasShop">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">📍</span>Shop Region</div><div class="ri-val" id="cShopReg">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">⭐</span>Seller Level</div><div class="ri-val" id="cSellerLvl">—</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head"><span class="sec-icon">⚙️</span><span class="sec-title">Interaction Settings</span></div>
+      <div class="settings-grid">
+        <div class="stc"><div class="stc-icon">⬇️</div><div class="stc-lbl">Download</div><div class="stc-val" id="stDown">—</div></div>
+        <div class="stc"><div class="stc-icon">🎭</div><div class="stc-lbl">Duet</div><div class="stc-val" id="stDuet">—</div></div>
+        <div class="stc"><div class="stc-icon">✂️</div><div class="stc-lbl">Stitch</div><div class="stc-val" id="stStitch">—</div></div>
+        <div class="stc"><div class="stc-icon">💬</div><div class="stc-lbl">Comment</div><div class="stc-val" id="stComment">—</div></div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <span class="card-footer-text">Powered by <span class="kelvio-inline">Kelvio</span> · kelvio.io</span>
+    </div>
+
+  </div><!-- /result -->
+
+  <!-- COPY BAR -->
+  <div class="copy-bar" id="copyBar">
+    <div class="copy-bar-left">
+      <span class="copy-bar-icon">📋</span>
+      <div class="copy-bar-info">
+        <div class="copy-bar-title">Copy Full Report</div>
+        <div class="copy-bar-sub">Clean text format · all fields included</div>
+      </div>
+    </div>
+    <button id="copyBtn" onclick="copyReport()">
+      <svg viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+      Copy Report
+    </button>
+  </div>
+
+  <footer>© <strong>Kelvio</strong> · kelvio.io · no data stored · rate limited · secured</footer>
+</div>
+
+<script>
+const BACKEND       = "https://tiktok-checker-api.onrender.com";
+const RATE_LIMIT_MS = 8000;
+const MAX_PER_MIN   = 6;
+
+let lastReq  = 0;
+let reqCount = 0;
+let winStart = Date.now();
+let G = null;
+
+function canRequest() {
+  const now = Date.now();
+  if (now - winStart > 60000) { reqCount = 0; winStart = now; }
+  if (now - lastReq < RATE_LIMIT_MS) {
+    const w = Math.ceil((RATE_LIMIT_MS - (now - lastReq)) / 1000);
+    showErr(`⏳ Please wait ${w}s before the next request.`);
+    return false;
+  }
+  if (reqCount >= MAX_PER_MIN) {
+    showErr("⛔ Too many requests. Please wait a minute.");
+    return false;
+  }
+  return true;
+}
+
+function sanitize(s) { return s.replace(/[^a-zA-Z0-9._]/g, "").slice(0, 24); }
+
+async function checkUser() {
+  if (!canRequest()) return;
+  const raw      = g("usernameInput").value.trim().replace(/^@/, "");
+  const username = sanitize(raw);
+  if (!username || username.length < 2) return showErr("Please enter a valid TikTok username.");
+
+  g("result").style.display  = "none";
+  g("copyBar").style.display = "none";
+  hide("errorBox");
+  show("loading");
+  g("checkBtn").disabled = true;
+  G = null;
+
+  lastReq = Date.now(); reqCount++;
+
+  try {
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 22000);
+    const res   = await fetch(`${BACKEND}/tiktok/${encodeURIComponent(username)}`, {
+      signal: ctrl.signal,
+      headers: { "Accept": "application/json" },
+      credentials: "omit",
+      referrerPolicy: "no-referrer",
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error(`Server error (${res.status})`);
+    const d = await res.json();
+    if (!d.success) throw new Error(d.error || "User not found.");
+    G = d;
+    render(d, username);
+  } catch(e) {
+    if (e.name === "AbortError") showErr("Request timed out. Try again.");
+    else showErr(e.message || "Something went wrong. Try again.");
+  } finally {
+    g("checkBtn").disabled = false;
+    hide("loading");
+  }
+}
+
+function render(d, username) {
+  const wrap = g("avatarWrap");
+  if (d.avatar) {
+    const img = document.createElement("img");
+    img.className = "avatar"; img.alt = "";
+    img.onerror = () => { wrap.innerHTML = '<div class="avatar-fallback">🎵</div>'; };
+    img.src = d.avatar;
+    wrap.innerHTML = ""; wrap.appendChild(img);
+  } else {
+    wrap.innerHTML = '<div class="avatar-fallback">🎵</div>';
+  }
+
+  txt("pName",   d.nickname || username);
+  txt("pHandle", "@" + (d.username || username));
+
+  let bh = "";
+  if (d.verified)             bh += bdg("✓ Verified",   "b-v");
+  if (d.isEnterpriseVerified) bh += bdg("⭐ Enterprise", "b-e");
+  if (d.ttSeller)             bh += bdg("🛒 Seller",     "b-s");
+  if (d.commerceUser)         bh += bdg("💼 Commerce",   "b-c");
+  if (d.privateAccount)       bh += bdg("🔒 Private",    "b-p");
+  if (d.isBanned)             bh += bdg("⛔ Banned",     "b-bn");
+  g("pBadges").innerHTML = bh;
+
+  const hasBio = d.bio || d.bioLink || d.instagramLink || d.youtubeLink || d.twitterLink;
+  if (hasBio) {
+    g("secBio").style.display = "block";
+    txt("bioText", d.bio || "");
+    let sl = "";
+    if (d.bioLink)       sl += lnk("🔗 Bio Link",  d.bioLink,       "sl-bio");
+    if (d.instagramLink) sl += lnk("📷 Instagram", d.instagramLink, "sl-ig");
+    if (d.youtubeLink)   sl += lnk("▶ YouTube",   d.youtubeLink,   "sl-yt");
+    if (d.twitterLink)   sl += lnk("🐦 Twitter",  d.twitterLink,   "sl-tw");
+    g("socialLinks").innerHTML = sl;
+  } else {
+    g("secBio").style.display = "none";
+  }
+
+  txt("dCreated", v(d.creationDate, "Not available"));
+  txt("dStamp",   d.creationTimestamp ? "Unix: " + d.creationTimestamp : "");
+  txt("dAge",     v(d.accountAge,   "Unknown"));
+  txt("dDays",    d.accountAgeDays  ? d.accountAgeDays + " days total" : "Date unavailable");
+
+  setVal("sFollowers", d.followers);
+  setVal("sFollowing", d.following);
+  setVal("sLikes",     d.likes);
+  setVal("sVideos",    d.videos);
+  setVal("sViews",     d.totalViews);
+  setVal("sFriends",   d.friends);
+  setVal("sDigg",      d.digg);
+  setVal("sLives",     d.liveCount);
+  setVal("sPinned",    d.pinnedVideoCount);
+
+  txt("iRegion",   v(d.region,   "—"));
+  txt("iLang",     v(d.language, "—"));
+  html("iAccType",   boolPill(d.privateAccount !== null ? !d.privateAccount : null, "Public", "Private"));
+  html("iOpenFav",   boolPill(d.openFavorite,  "Public",  "Hidden"));
+  html("iShowLiked", boolPill(d.showLiked,     "Visible", "Hidden"));
+  txt("iRoomId",   v(d.roomId, "—"));
+
+  html("cCommerce",   boolPill(d.commerceUser, "Yes", "No"));
+  html("cSeller",     boolPill(d.ttSeller,     "Yes", "No"));
+  html("cHasShop",    boolPill(d.hasShop,      "Yes", "No"));
+  txt("cShopReg",     v(d.shopRegion, "—"));
+  txt("cSellerLvl",   d.sellerLevel !== null && d.sellerLevel !== undefined ? String(d.sellerLevel) : "—");
+
+  setSt("stDown",    d.downloadSetting);
+  setSt("stDuet",    d.duetSetting);
+  setSt("stStitch",  d.stitchSetting);
+  setSt("stComment", d.commentSetting);
+
+  g("result").style.display  = "block";
+  g("copyBar").style.display = "flex";
+  resetCopyBtn();
+}
+
+function copyReport() {
+  if (!G) return;
+  const d = G;
+  const yn  = val => val === true ? "Yes"     : val === false ? "No"      : "N/A";
+  const pv  = val => val === true ? "Public"  : val === false ? "Private" : "N/A";
+  const vis = val => val === true ? "Visible" : val === false ? "Hidden"  : "N/A";
+  const stv = val => val === 0 ? "All (Everyone)" : val === 1 ? "Friends Only" : val === 2 ? "Off" : "N/A";
+  const num = val => (val !== null && val !== undefined) ? val.toLocaleString() : "N/A";
+  const str = val => (val !== null && val !== undefined && val !== "") ? String(val) : "N/A";
+  const now = new Date().toLocaleString();
+  const lines = [
+    `╔════════════════════════════════════════════════╗`,
+    `║            Kelvio — Profile Report             ║`,
+    `║              kelvio.io                         ║`,
+    `╚════════════════════════════════════════════════╝`,
+    `  Generated : ${now}`,
+    ``,
+    `━━━━━━━━━━━━━  👤 PROFILE  ━━━━━━━━━━━━━`,
+    `  Name            : ${str(d.nickname)}`,
+    `  Username         : @${str(d.username)}`,
+    `  Verified         : ${yn(d.verified)}`,
+    `  Enterprise Verif : ${yn(d.isEnterpriseVerified)}`,
+    `  Account Type     : ${pv(d.privateAccount !== null ? !d.privateAccount : null)}`,
+    `  Banned           : ${yn(d.isBanned)}`,
+    `  Under Age        : ${yn(d.isUnderAge)}`,
+    `  Bio              : ${str(d.bio)}`,
+    ``,
+    `━━━━━━━━━━━━━  📅 ACCOUNT AGE  ━━━━━━━━━━━━━`,
+    `  Created On       : ${str(d.creationDate)}`,
+    `  Unix Timestamp   : ${str(d.creationTimestamp)}`,
+    `  Account Age      : ${str(d.accountAge)}`,
+    `  Total Days       : ${num(d.accountAgeDays)}`,
+    ``,
+    `━━━━━━━━━━━━━  📊 STATISTICS  ━━━━━━━━━━━━━`,
+    `  Followers        : ${num(d.followers)}`,
+    `  Following        : ${num(d.following)}`,
+    `  Total Likes      : ${num(d.likes)}`,
+    `  Videos           : ${num(d.videos)}`,
+    `  Total Views      : ${num(d.totalViews)}`,
+    `  Friends          : ${num(d.friends)}`,
+    `  Digg Count       : ${num(d.digg)}`,
+    `  Lives            : ${num(d.liveCount)}`,
+    `  Pinned Videos    : ${num(d.pinnedVideoCount)}`,
+    ``,
+    `━━━━━━━━━━━━━  🌍 ACCOUNT INFO  ━━━━━━━━━━━━━`,
+    `  Region           : ${str(d.region)}`,
+    `  Language         : ${str(d.language)}`,
+    `  Favorite List    : ${pv(d.openFavorite)}`,
+    `  Liked Videos     : ${vis(d.showLiked)}`,
+    `  Room ID          : ${str(d.roomId)}`,
+    ``,
+    `━━━━━━━━━━━━━  🛒 COMMERCE & SELLER  ━━━━━━━━━━━━━`,
+    `  Commerce User    : ${yn(d.commerceUser)}`,
+    `  TT Seller        : ${yn(d.ttSeller)}`,
+    `  Has Shop         : ${yn(d.hasShop)}`,
+    `  Shop Region      : ${str(d.shopRegion)}`,
+    `  Seller Level     : ${str(d.sellerLevel)}`,
+    ``,
+    `━━━━━━━━━━━━━  ⚙️ INTERACTION SETTINGS  ━━━━━━━━━━━━━`,
+    `  Download         : ${stv(d.downloadSetting)}`,
+    `  Duet             : ${stv(d.duetSetting)}`,
+    `  Stitch           : ${stv(d.stitchSetting)}`,
+    `  Comment          : ${stv(d.commentSetting)}`,
+    ``,
+    `━━━━━━━━━━━━━  🔗 SOCIAL LINKS  ━━━━━━━━━━━━━`,
+    `  Bio Link         : ${str(d.bioLink)}`,
+    `  Instagram        : ${str(d.instagramLink)}`,
+    `  YouTube          : ${str(d.youtubeLink)}`,
+    `  Twitter/X        : ${str(d.twitterLink)}`,
+    ``,
+    `════════════════════════════════════════════════`,
+    `  Kelvio · kelvio.io · no data stored`,
+    `════════════════════════════════════════════════`,
+  ];
+  const text = lines.join("\n");
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => copiedFeedback()).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;opacity:0;";
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand("copy"); copiedFeedback(); }
+  catch { showErr("Could not copy automatically. Please copy manually."); }
+  document.body.removeChild(ta);
+}
+
+function copiedFeedback() {
+  const btn = g("copyBtn");
+  btn.classList.add("done");
+  btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Copied!`;
+  setTimeout(() => resetCopyBtn(), 2800);
+}
+
+function resetCopyBtn() {
+  const btn = g("copyBtn");
+  btn.classList.remove("done");
+  btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy Report`;
+}
+
+const g    = id => document.getElementById(id);
+const show = id => g(id).style.display = "block";
+const hide = id => g(id).style.display = "none";
+
+function txt(id, val) {
+  const e = g(id);
+  if (e) e.textContent = (val !== null && val !== undefined) ? String(val) : "—";
+}
+function html(id, val) {
+  const e = g(id);
+  if (e) e.innerHTML = val || "—";
+}
+function v(val, fallback = "—") {
+  return (val !== null && val !== undefined && val !== "") ? val : fallback;
+}
+function fmt(n) {
+  if (n === null || n === undefined) return "—";
+  if (n >= 1e9) return (n/1e9).toFixed(2) + "B";
+  if (n >= 1e6) return (n/1e6).toFixed(2) + "M";
+  if (n >= 1e3) return (n/1e3).toFixed(1) + "K";
+  return n.toLocaleString();
+}
+function setVal(id, n) {
+  txt(id, (n !== null && n !== undefined) ? fmt(n) : "—");
+}
+function boolPill(val, tLabel, fLabel) {
+  if (val === null || val === undefined) return '<span class="pill p-gr">N/A</span>';
+  return val
+    ? `<span class="pill p-g">✓ ${tLabel}</span>`
+    : `<span class="pill p-r">✕ ${fLabel}</span>`;
+}
+function bdg(text, cls) {
+  return `<span class="badge ${cls}">${text}</span>`;
+}
+function lnk(label, url, cls) {
+  const safe = escUrl(url);
+  return `<a class="slink ${cls}" href="${safe}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+}
+function setSt(id, n) {
+  const e = g(id);
+  if (!e) return;
+  if (n === null || n === undefined) { e.textContent = "N/A"; e.className = "stc-val sv-na"; return; }
+  if (n === 0)      { e.textContent = "All";     e.className = "stc-val sv-on"; }
+  else if (n === 1) { e.textContent = "Friends"; e.className = "stc-val sv-on"; }
+  else if (n === 2) { e.textContent = "Off";     e.className = "stc-val sv-off"; }
+  else              { e.textContent = String(n); e.className = "stc-val sv-na"; }
+}
+function escUrl(url) {
+  try {
+    const u = new URL(url.startsWith("http") ? url : "https://" + url);
+    return ["https:", "http:"].includes(u.protocol) ? u.href : "#";
+  } catch { return "#"; }
+}
+function showErr(msg) {
+  hide("loading");
+  const e = g("errorBox");
+  e.textContent = "⚠ " + msg;
+  e.style.display = "block";
+}
+
+g("usernameInput").addEventListener("keydown", e => { if (e.key === "Enter") checkUser(); });
+g("usernameInput").addEventListener("paste", e => {
+  e.preventDefault();
+  const p = (e.clipboardData || window.clipboardData).getData("text");
+  g("usernameInput").value = sanitize(p.trim().replace(/^@/, ""));
+});
+</script>
+</body>
+</html>
