@@ -1,0 +1,2357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+<meta name="theme-color" content="#ffffff"/>
+<meta name="color-scheme" content="light"/>
+<meta name="referrer" content="no-referrer"/>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet"/>
+
+<!-- ══════════ HARDENED SECURITY HEADERS (META) ══════════ -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'none';
+  script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com;
+  style-src  'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src   https://fonts.gstatic.com;
+  img-src    'self' data: https:;
+  connect-src https://tiktok-checker-api.onrender.com https://static.cloudflareinsights.com;
+  worker-src 'none';
+  object-src 'none';
+  form-action 'none';
+  base-uri 'none';
+  frame-ancestors 'none';
+  upgrade-insecure-requests;
+  block-all-mixed-content;
+"/>
+
+<!-- ══════════ KELVIO ADDITIONS · STYLES ══════════ -->
+<style>
+/* Secondary action button under search card (Demo + Guide trigger) */
+.aux-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  margin-bottom: 6px;
+}
+.aux-btn {
+  appearance: none;
+  border: 1px solid var(--line-2);
+  background: var(--card);
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 9px 16px;
+  border-radius: var(--rs);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all .18s ease;
+  box-shadow: var(--shadow-sm);
+}
+.aux-btn:hover {
+  border-color: var(--accent-line);
+  color: var(--accent);
+  background: var(--accent-soft);
+  transform: translateY(-1px);
+}
+.aux-btn .ico { font-size: 13px; line-height: 1; }
+.aux-btn[data-active="true"] {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* Guide / tutorial panel */
+.guide-panel {
+  width: 100%;
+  max-width: 720px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--rl);
+  margin: 16px auto 0;
+  padding: 28px 30px 26px;
+  box-shadow: var(--shadow);
+  display: none;
+  position: relative;
+  animation: guideIn .35s ease;
+}
+@keyframes guideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.guide-panel.is-open { display: block; }
+.guide-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.guide-title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 26px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.guide-num {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-mute);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.guide-intro {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  margin-bottom: 22px;
+}
+.guide-steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+.gstep {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  border-radius: var(--rs);
+  transition: border-color .15s ease;
+}
+.gstep:hover { border-color: var(--accent-line); }
+.gstep-n {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 28px;
+  color: var(--accent);
+  line-height: 1;
+  text-align: center;
+  padding-top: 2px;
+}
+.gstep-t {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+  letter-spacing: -0.005em;
+}
+.gstep-d {
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.guide-foot {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line-2);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+/* Demo banner shown above results when in demo mode */
+.demo-banner {
+  width: 100%;
+  max-width: 720px;
+  margin: 16px auto -8px;
+  padding: 10px 16px;
+  background: var(--coral-soft);
+  border: 1px dashed var(--coral);
+  border-radius: var(--rs);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--coral);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  display: none;
+}
+.demo-banner.is-on { display: block; }
+
+/* Share bar */
+.share-bar {
+  width: 100%;
+  max-width: 720px;
+  margin: 26px auto 0;
+  padding: 18px 22px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--rl);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.share-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.share-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+.share-sub {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-mute);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.share-icons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.share-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  background: var(--card);
+  color: var(--ink-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .18s ease;
+  padding: 0;
+}
+.share-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.share-btn svg { width: 16px; height: 16px; }
+.share-btn.sb-x:hover       { background: #0a0a0f; color: #fff; border-color: #0a0a0f; }
+.share-btn.sb-fb:hover      { background: #1877f2; color: #fff; border-color: #1877f2; }
+.share-btn.sb-wa:hover      { background: #25d366; color: #fff; border-color: #25d366; }
+.share-btn.sb-tg:hover      { background: #229ed9; color: #fff; border-color: #229ed9; }
+.share-btn.sb-in:hover      { background: #0a66c2; color: #fff; border-color: #0a66c2; }
+.share-btn.sb-rd:hover      { background: #ff4500; color: #fff; border-color: #ff4500; }
+.share-btn.sb-link:hover    { background: var(--accent); color: #fff; border-color: var(--accent); }
+.share-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  padding: 10px 18px;
+  border-radius: var(--rs);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 9999;
+}
+.share-toast.is-show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+@media (max-width: 540px) {
+  .guide-panel { padding: 22px 18px; }
+  .guide-title { font-size: 22px; }
+  .share-bar { padding: 16px; }
+  .share-btn { width: 36px; height: 36px; }
+}
+@media print {
+  .aux-row, .guide-panel, .share-bar, .demo-banner { display: none !important; }
+}
+</style>
+<meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+<meta http-equiv="X-Frame-Options" content="DENY"/>
+<meta http-equiv="X-XSS-Protection" content="1; mode=block"/>
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"/>
+<meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin"/>
+<meta http-equiv="Cross-Origin-Resource-Policy" content="same-origin"/>
+
+<title>AH Analytics · Profile Intelligence</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  /* Editorial Light Palette — Unique tone */
+  --paper:        #fafaf7;
+  --paper-2:      #f4f4ef;
+  --ink:          #0a0a0f;
+  --ink-2:        #1a1a24;
+  --ink-3:        #3a3a4a;
+  --ink-soft:     #6b6b7a;
+  --ink-mute:     #9a9aae;
+  --line:         #e8e8e0;
+  --line-2:       #d4d4ca;
+  --card:         #ffffff;
+  --card-2:       #fcfcf9;
+
+  /* Signature accent — deep indigo with warm coral */
+  --accent:       #2d2a7f;
+  --accent-2:     #4845c4;
+  --accent-soft:  rgba(45, 42, 127, 0.06);
+  --accent-line:  rgba(45, 42, 127, 0.14);
+  --coral:        #e85a4f;
+  --coral-soft:   rgba(232, 90, 79, 0.08);
+  --olive:        #6b7a3d;
+  --olive-soft:   rgba(107, 122, 61, 0.08);
+  --amber:        #b8860b;
+  --amber-soft:   rgba(184, 134, 11, 0.08);
+  --crimson:      #8b1e3f;
+  --crimson-soft: rgba(139, 30, 63, 0.08);
+
+  --shadow-sm:  0 1px 2px rgba(10,10,15,0.04), 0 1px 1px rgba(10,10,15,0.03);
+  --shadow:     0 1px 3px rgba(10,10,15,0.04), 0 8px 24px -8px rgba(10,10,15,0.08);
+  --shadow-lg:  0 4px 12px rgba(10,10,15,0.05), 0 24px 60px -20px rgba(10,10,15,0.12);
+
+  --r:  4px;
+  --rs: 3px;
+  --rl: 6px;
+
+  --serif: 'Instrument Serif', 'Georgia', serif;
+  --sans:  'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono:  'JetBrains Mono', 'SF Mono', Consolas, monospace;
+}
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 18px 60px;
+  position: relative;
+  overflow-x: hidden;
+  font-feature-settings: "ss01", "cv11", "cv02";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Editorial dotted grid background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(10,10,15,0.06) 1px, transparent 0);
+  background-size: 22px 22px;
+  pointer-events: none; z-index: 0; opacity: 0.5;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 80%);
+}
+
+/* Subtle paper grain */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; mix-blend-mode: multiply;
+}
+
+.container { position: relative; z-index: 1; width: 100%; max-width: 640px; }
+
+/* ════════════════════════════════════
+   BRAND HEADER — Editorial style
+════════════════════════════════════ */
+header {
+  text-align: center;
+  margin-bottom: 36px;
+  padding-top: 12px;
+  position: relative;
+}
+
+/* Top hairline indicator */
+.hairline-top {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  margin-bottom: 32px;
+  font-family: var(--mono); font-size: 10px; font-weight: 400;
+  color: var(--ink-mute); letter-spacing: 3px; text-transform: uppercase;
+}
+.hairline-top::before, .hairline-top::after {
+  content: ''; flex: 1; max-width: 80px;
+  height: 1px; background: var(--line-2);
+}
+.hairline-top .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.brand-block {
+  display: inline-flex; flex-direction: column; align-items: center;
+  gap: 18px;
+}
+
+/* Geometric K monogram — unique architectural mark */
+.brand-mark {
+  width: 64px; height: 64px;
+  position: relative;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  background: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow:
+    3px 3px 0 0 var(--ink),
+    3px 3px 0 1.5px var(--ink);
+  transition: transform .3s cubic-bezier(.22,1,.36,1);
+}
+.brand-mark::after {
+  content: '';
+  position: absolute; right: -7px; top: -7px;
+  width: 12px; height: 12px;
+  background: var(--coral);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--paper);
+}
+.brand-mark:hover { transform: translate(-2px, -2px); }
+.brand-mark:hover { box-shadow: 5px 5px 0 0 var(--ink), 5px 5px 0 1.5px var(--ink); }
+.brand-mark svg { width: 30px; height: 30px; }
+
+.brand-name {
+  font-family: var(--serif);
+  font-size: 48px;
+  font-weight: 400;
+  letter-spacing: -1.5px;
+  line-height: 0.95;
+  color: var(--ink);
+  font-style: italic;
+}
+.brand-name .ampersand { color: var(--coral); font-style: normal; font-family: var(--serif); }
+
+.brand-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 400;
+  margin-top: 4px;
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+}
+.brand-tag .num {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.brand-desc {
+  font-size: 15px;
+  color: var(--ink-3);
+  margin-top: 18px;
+  font-weight: 400;
+  letter-spacing: -0.1px;
+  line-height: 1.5;
+  max-width: 420px;
+  margin-left: auto; margin-right: auto;
+}
+.brand-desc em { font-family: var(--serif); font-style: italic; color: var(--accent); font-size: 17px; }
+
+.status-strip {
+  display: inline-flex; align-items: center; gap: 14px;
+  margin-top: 22px;
+  padding: 7px 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  font-family: var(--mono); font-size: 10px;
+  color: var(--ink-soft); letter-spacing: 1px;
+  box-shadow: var(--shadow-sm);
+}
+.status-strip > span { display: inline-flex; align-items: center; gap: 6px; }
+.status-strip > span + span { padding-left: 14px; border-left: 1px solid var(--line); }
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--olive);
+  box-shadow: 0 0 0 3px var(--olive-soft);
+  animation: livepulse 2.6s ease-in-out infinite;
+}
+@keyframes livepulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ════════════════════════════════════
+   SEARCH CARD — Editorial input
+════════════════════════════════════ */
+.search-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--rl);
+  padding: 22px 20px 18px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+  position: relative;
+  transition: box-shadow .3s, border-color .3s;
+}
+.search-card:focus-within {
+  border-color: var(--ink-3);
+  box-shadow: var(--shadow-lg);
+}
+.search-card::before {
+  content: 'INSPECT';
+  position: absolute; top: -8px; left: 20px;
+  background: var(--paper);
+  padding: 0 8px;
+  font-family: var(--mono); font-size: 9px; font-weight: 500;
+  color: var(--accent); letter-spacing: 3px;
+}
+
+.input-row { display: flex; gap: 10px; }
+.input-group { flex: 1; position: relative; }
+
+.prefix {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--accent); font-family: var(--serif);
+  font-size: 22px; pointer-events: none; font-weight: 400;
+  font-style: italic;
+  line-height: 1;
+}
+
+#usernameInput {
+  width: 100%;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 14px 14px 14px 34px;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 400;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+  letter-spacing: 0.2px;
+}
+#usernameInput:focus {
+  border-color: var(--accent);
+  background: #fff;
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+#usernameInput::placeholder { color: var(--ink-mute); font-weight: 300; }
+
+#checkBtn {
+  background: var(--ink);
+  color: #fff;
+  border: 1px solid var(--ink);
+  border-radius: var(--r);
+  padding: 14px 22px;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  transition: background .2s, transform .1s, box-shadow .2s, color .2s;
+  position: relative;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+#checkBtn::after {
+  content: '→';
+  font-size: 16px;
+  transition: transform .2s;
+}
+#checkBtn:hover { background: var(--accent); border-color: var(--accent); }
+#checkBtn:hover::after { transform: translateX(3px); }
+#checkBtn:active { transform: scale(.97); }
+#checkBtn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Honeypot — invisible to humans, visible to bots */
+.hp-field {
+  position: absolute !important;
+  left: -99999px !important;
+  top: -99999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  tab-index: -1;
+}
+
+.rate-notice {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--mono); font-size: 9.5px; font-weight: 400;
+  color: var(--ink-mute);
+  margin-top: 14px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.rate-notice .lock-ico {
+  width: 11px; height: 11px;
+  stroke: var(--olive); fill: none; stroke-width: 2;
+}
+.rate-notice .pip { color: var(--line-2); }
+
+/* ════════════════════════════════════
+   LOADING / ERROR
+════════════════════════════════════ */
+.loading {
+  display: none;
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--rl);
+  margin-bottom: 18px;
+}
+.spinner {
+  width: 28px; height: 28px;
+  border: 1.5px solid var(--line);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-box {
+  display: none;
+  background: var(--card);
+  border: 1px solid var(--coral);
+  border-left: 4px solid var(--coral);
+  border-radius: var(--r);
+  padding: 14px 18px;
+  color: var(--crimson);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 400;
+  margin-bottom: 16px;
+  letter-spacing: 0.2px;
+}
+
+/* ════════════════════════════════════
+   RESULT CARD
+════════════════════════════════════ */
+.result {
+  display: none;
+  background: var(--card);
+  border-radius: var(--rl);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-lg);
+  margin-bottom: 18px;
+  animation: fadeUp .5s cubic-bezier(.22,1,.36,1);
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Profile Header — Magazine style ── */
+.profile-header {
+  background: var(--card-2);
+  border-bottom: 1px solid var(--line);
+  padding: 26px 24px 22px;
+  display: flex; align-items: flex-start; gap: 18px;
+  position: relative;
+}
+.profile-header::before {
+  content: 'PROFILE';
+  position: absolute; top: 10px; right: 16px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-mute);
+  letter-spacing: 3px;
+  font-weight: 500;
+}
+
+.avatar {
+  width: 76px; height: 76px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid var(--line-2);
+  box-shadow: 4px 4px 0 0 var(--ink);
+  flex-shrink: 0;
+  background: var(--paper);
+}
+.avatar-fallback {
+  width: 76px; height: 76px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--paper-2), var(--paper));
+  border: 1px solid var(--line-2);
+  box-shadow: 4px 4px 0 0 var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+  flex-shrink: 0;
+}
+
+.profile-info { flex: 1; min-width: 0; padding-top: 4px; }
+.pname {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: var(--ink);
+}
+.phandle {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--accent);
+  margin-top: 6px;
+  letter-spacing: 0.5px;
+}
+.badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 9.5px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  border: 1px solid;
+}
+.b-v  { background: var(--accent-soft);  color: var(--accent);   border-color: var(--accent-line); }
+.b-e  { background: var(--amber-soft);   color: var(--amber);    border-color: rgba(184,134,11,0.2); }
+.b-s  { background: var(--olive-soft);   color: var(--olive);    border-color: rgba(107,122,61,0.2); }
+.b-c  { background: var(--accent-soft);  color: var(--accent-2); border-color: var(--accent-line); }
+.b-p  { background: var(--paper-2);      color: var(--ink-soft); border-color: var(--line-2); }
+.b-bn { background: var(--coral-soft);   color: var(--crimson);  border-color: rgba(232,90,79,0.25); }
+
+/* ── Section ── */
+.section { background: var(--card); }
+.section + .section { border-top: 1px solid var(--line); }
+
+.sec-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 24px 12px;
+  background: var(--card-2);
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+.sec-head::before {
+  content: '';
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 16px;
+  background: var(--accent);
+}
+.sec-ico {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+.sec-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+}
+.sec-num {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--ink-mute);
+  letter-spacing: 1px;
+}
+
+/* ── Bio ── */
+.bio-body { padding: 18px 24px; }
+.bio-text {
+  font-size: 14px;
+  color: var(--ink-2);
+  line-height: 1.65;
+  font-family: var(--serif);
+  font-size: 17px;
+  font-style: italic;
+  position: relative;
+  padding-left: 14px;
+  border-left: 2px solid var(--accent-line);
+}
+.slinks { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.slink {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: transform .18s, box-shadow .18s;
+  border: 1px solid;
+  letter-spacing: 0.3px;
+}
+.slink:hover { transform: translate(-1px, -1px); box-shadow: 2px 2px 0 0 currentColor; }
+.sl-bio { background: var(--accent-soft); color: var(--accent);  border-color: var(--accent-line); }
+.sl-ig  { background: var(--coral-soft);  color: var(--coral);   border-color: rgba(232,90,79,0.25); }
+.sl-yt  { background: var(--coral-soft);  color: var(--crimson); border-color: rgba(139,30,63,0.2); }
+.sl-tw  { background: var(--accent-soft); color: var(--accent-2);border-color: var(--accent-line); }
+
+/* ── Date Cards ── */
+.date-body {
+  padding: 18px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+.dc {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 18px 16px;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+.dc.hl {
+  background: var(--card);
+  border-color: var(--line-2);
+  box-shadow: var(--shadow-sm);
+}
+.dc::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 24px; height: 2px;
+  background: var(--accent);
+}
+.dc-lbl {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.dc-val {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+  line-height: 1.1;
+}
+.dc-val.xl { font-size: 30px; font-style: italic; }
+.dc-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Stats Grid ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--line);
+  gap: 1px;
+}
+.sc {
+  background: var(--card);
+  padding: 18px 10px;
+  text-align: center;
+  transition: background .15s;
+  position: relative;
+}
+.sc:hover { background: var(--card-2); }
+.sc-val {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  color: var(--ink);
+  line-height: 1;
+}
+.sc-lbl {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 8px;
+}
+
+/* ── Row List ── */
+.ri {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px;
+  gap: 14px;
+  transition: background .12s;
+  border-bottom: 1px solid var(--line);
+}
+.ri:last-child { border-bottom: none; }
+.ri:hover { background: var(--card-2); }
+.ri-key {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  flex-shrink: 0;
+}
+.ri-ico {
+  font-size: 14px; width: 20px; text-align: center; flex-shrink: 0;
+  opacity: 0.7;
+}
+.ri-val {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink);
+  text-align: right;
+  word-break: break-all;
+}
+
+/* ── Pill ── */
+.pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+}
+.p-g  { background: var(--olive-soft);  color: var(--olive);    border-color: rgba(107,122,61,0.25); }
+.p-r  { background: var(--coral-soft);  color: var(--crimson);  border-color: rgba(232,90,79,0.25); }
+.p-gr { background: var(--paper-2);     color: var(--ink-mute); border-color: var(--line-2); }
+
+/* ── Settings ── */
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: var(--line);
+  gap: 1px;
+}
+.stc {
+  background: var(--card);
+  padding: 16px 6px;
+  text-align: center;
+  transition: background .13s;
+}
+.stc:hover { background: var(--card-2); }
+.stc-icon { font-size: 16px; margin-bottom: 6px; opacity: 0.65; }
+.stc-lbl {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  font-weight: 500;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+}
+.stc-val {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--mono);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.sv-on  { color: var(--olive); }
+.sv-off { color: var(--crimson); }
+.sv-na  { color: var(--ink-mute); }
+
+/* ── Card Footer ── */
+.card-footer {
+  background: var(--card-2);
+  border-top: 1px solid var(--line);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.card-footer-text {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--ink-mute);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.kelvio-inline {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--accent);
+  letter-spacing: -0.3px;
+}
+
+/* ════════════════════════════════════
+   COPY BAR
+════════════════════════════════════ */
+.copy-bar {
+  display: none;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--rl);
+  padding: 16px 18px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow);
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  animation: fadeUp .4s cubic-bezier(.22,1,.36,1);
+}
+.copy-bar-left { display: flex; align-items: center; gap: 14px; }
+.copy-bar-icon {
+  width: 36px; height: 36px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent);
+  font-size: 16px;
+}
+.copy-bar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.2px;
+}
+.copy-bar-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--ink-mute);
+  margin-top: 3px;
+  letter-spacing: 0.5px;
+}
+
+#copyBtn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--paper-2);
+  color: var(--ink);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  padding: 10px 18px;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, color .18s, transform .1s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+#copyBtn:hover  { background: var(--ink); color: #fff; border-color: var(--ink); }
+#copyBtn:active { transform: scale(.97); }
+#copyBtn.done   { background: var(--olive-soft); border-color: var(--olive); color: var(--olive); }
+#copyBtn svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
+
+/* ════════════════════════════════════
+   FOOTER
+════════════════════════════════════ */
+footer {
+  text-align: center;
+  padding-bottom: 12px;
+  margin-top: 8px;
+}
+.foot-row {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--ink-mute);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.foot-row > span + span { padding-left: 14px; border-left: 1px solid var(--line-2); }
+.foot-row strong {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: -0.3px;
+  text-transform: none;
+}
+.foot-mini {
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  color: var(--line-2);
+  letter-spacing: 2px;
+}
+
+/* ════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════ */
+@media (max-width: 460px) {
+  body { padding: 24px 14px 50px; }
+  .brand-name { font-size: 40px; }
+  .brand-mark { width: 56px; height: 56px; }
+  .brand-mark svg { width: 26px; height: 26px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .settings-grid { grid-template-columns: repeat(2, 1fr); }
+  .date-body { grid-template-columns: 1fr; }
+  .profile-header { padding: 22px 18px; }
+  .sec-head, .ri, .bio-body, .card-footer { padding-left: 18px; padding-right: 18px; }
+  .hairline-top::before, .hairline-top::after { max-width: 40px; }
+  .status-strip { flex-direction: column; gap: 6px; }
+  .status-strip > span + span { padding-left: 0; border-left: none; }
+}
+
+/* No-select on sensitive UI */
+.no-sel { user-select: none; -webkit-user-select: none; }
+
+/* Print suppress */
+@media print {
+  body::before, body::after { display: none; }
+  .search-card, .copy-bar, #checkBtn { display: none; }
+}
+
+.section-note {
+  margin-top: -2px;
+  margin-bottom: 14px;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.ri-val.is-mono {
+  font-family: var(--mono);
+  font-size: 12px;
+  word-break: break-word;
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- BRAND HEADER -->
+  <header>
+    <div class="hairline-top">
+      <span class="dot"></span>
+      <span>AH Analytics Intelligence · v2.0</span>
+    </div>
+
+    <div class="brand-block">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 5v22M9 16l11-11M9 16l11 11" stroke="#0a0a0f" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">AH Analytics<span class="ampersand">·</span>io</div>
+        <div class="brand-tag">
+          <span class="num">№ 001</span>
+          <span>·</span>
+          <span>Profile Intelligence</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="brand-desc">
+      A precision instrument for <em>TikTok profile</em> forensics — account age, signals, and verified metadata, delivered in real-time.
+    </p>
+
+    <div class="status-strip no-sel">
+      <span><span class="status-dot"></span> Live</span>
+      <span>Zero retention</span>
+      <span>TLS encrypted</span>
+    </div>
+  </header>
+
+  <!-- SEARCH -->
+  <div class="search-card">
+    <div class="input-row">
+      <div class="input-group">
+        <span class="prefix">@</span>
+        <input id="usernameInput" type="text"
+               placeholder="enter tiktok handle"
+               autocomplete="off" autocorrect="off" autocapitalize="off"
+               spellcheck="false" maxlength="24"
+               inputmode="text"
+               aria-label="TikTok username"
+               pattern="[a-zA-Z0-9._]{2,24}"
+               data-lpignore="true"/>
+      </div>
+      <button id="checkBtn" type="button">Inspect</button>
+    </div>
+    <!-- Honeypot anti-bot field -->
+    <div class="hp-field" aria-hidden="true">
+      <label>Leave this empty</label>
+      <input type="text" id="hp_field" name="website_url" tabindex="-1" autocomplete="off"/>
+    </div>
+    <div class="rate-notice no-sel">
+      <svg class="lock-ico" viewBox="0 0 24 24"><path d="M5 11h14v10H5zM8 11V7a4 4 0 018 0v4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Encrypted</span>
+      <span class="pip">·</span>
+      <span>Rate-limited</span>
+      <span class="pip">·</span>
+      <span>Zero log</span>
+    </div>
+  </div>
+
+  <!-- ══════════ AUX ACTIONS · Demo + Guide ══════════ -->
+  <div class="aux-row no-sel">
+    <button class="aux-btn" id="demoBtn" type="button" aria-label="View demo result">
+      <span class="ico">◐</span>
+      <span>View Demo Result</span>
+    </button>
+    <button class="aux-btn" id="guideBtn" type="button" aria-expanded="false" aria-controls="guidePanel">
+      <span class="ico">?</span>
+      <span>How It Works</span>
+    </button>
+  </div>
+
+  <!-- ══════════ GUIDE / TUTORIAL ══════════ -->
+  <section class="guide-panel" id="guidePanel" aria-hidden="true">
+    <div class="guide-head">
+      <div class="guide-title">How <em>AH Analytics</em> works</div>
+      <div class="guide-num">№ 00 · Guide</div>
+    </div>
+    <p class="guide-intro">
+      AH Analytics is a precision instrument for TikTok profile forensics. In four short steps, you get verified metadata, account age, engagement signals and commerce data — all in real-time, with zero retention.
+    </p>
+    <div class="guide-steps">
+      <div class="gstep">
+        <div class="gstep-n">i</div>
+        <div>
+          <div class="gstep-t">Enter a TikTok username</div>
+          <div class="gstep-d">Type any public handle in the search field above (without the <strong>@</strong>). Only letters, numbers, dots and underscores are allowed — minimum 2 characters.</div>
+        </div>
+      </div>
+      <div class="gstep">
+        <div class="gstep-n">ii</div>
+        <div>
+          <div class="gstep-t">Press <strong>Inspect</strong></div>
+          <div class="gstep-d">AH Analytics fetches the profile through an encrypted, rate-limited backend. Nothing is logged or stored — the request is one-way and stateless.</div>
+        </div>
+      </div>
+      <div class="gstep">
+        <div class="gstep-n">iii</div>
+        <div>
+          <div class="gstep-t">Read the full report</div>
+          <div class="gstep-d">You get the profile's creation date, total age in days, followers/likes/views, region &amp; language, commerce status, shop info, and content interaction settings (Duet, Stitch, Download, Comment).</div>
+        </div>
+      </div>
+      <div class="gstep">
+        <div class="gstep-n">iv</div>
+        <div>
+          <div class="gstep-t">Export or share</div>
+          <div class="gstep-d">Use the <strong>Copy</strong> button at the bottom to export a plain-text report (with optional extra fields), or share AH Analytics with others using the social buttons below.</div>
+        </div>
+      </div>
+    </div>
+    <div class="guide-foot">— tip · try the “View Demo Result” button to see a sample report —</div>
+  </section>
+
+  <!-- Banner when demo mode is active -->
+  <div class="demo-banner" id="demoBanner">◐ Demo Mode · This is a sample report for illustration only</div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    Inspecting profile signals…
+  </div>
+  <div class="error-box" id="errorBox" role="alert" aria-live="polite"></div>
+
+  <!-- RESULT -->
+  <div class="result" id="result">
+
+    <div class="profile-header">
+      <div id="avatarWrap"></div>
+      <div class="profile-info">
+        <div class="pname"   id="pName"></div>
+        <div class="phandle" id="pHandle"></div>
+        <div class="badges"  id="pBadges"></div>
+      </div>
+    </div>
+
+    <div class="section" id="secBio" style="display:none">
+      <div class="sec-head">
+        <span class="sec-ico">01</span>
+        <span class="sec-title">Bio & Social Links</span>
+        <span class="sec-num">/ profile</span>
+      </div>
+      <div class="bio-body">
+        <div class="bio-text" id="bioText"></div>
+        <div class="slinks" id="socialLinks"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-ico">02</span>
+        <span class="sec-title">Account Age</span>
+        <span class="sec-num">/ timeline</span>
+      </div>
+      <div class="date-body">
+        <div class="dc hl">
+          <div class="dc-lbl">Created On</div>
+          <div class="dc-val" id="dCreated">—</div>
+          <div class="dc-sub" id="dStamp"></div>
+        </div>
+        <div class="dc hl">
+          <div class="dc-lbl">Age</div>
+          <div class="dc-val xl" id="dAge">—</div>
+          <div class="dc-sub" id="dDays"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-ico">03</span>
+        <span class="sec-title">Statistics</span>
+        <span class="sec-num">/ metrics</span>
+      </div>
+      <div class="stats-grid">
+        <div class="sc"><div class="sc-val" id="sFollowers">—</div><div class="sc-lbl">Followers</div></div>
+        <div class="sc"><div class="sc-val" id="sFollowing">—</div><div class="sc-lbl">Following</div></div>
+        <div class="sc"><div class="sc-val" id="sLikes">—</div><div class="sc-lbl">Total Likes</div></div>
+        <div class="sc"><div class="sc-val" id="sVideos">—</div><div class="sc-lbl">Videos</div></div>
+        <div class="sc"><div class="sc-val" id="sViews">—</div><div class="sc-lbl">Total Views</div></div>
+        <div class="sc"><div class="sc-val" id="sFriends">—</div><div class="sc-lbl">Friends</div></div>
+        <div class="sc"><div class="sc-val" id="sDigg">—</div><div class="sc-lbl">Digg</div></div>
+        <div class="sc"><div class="sc-val" id="sLives">—</div><div class="sc-lbl">Lives</div></div>
+        <div class="sc"><div class="sc-val" id="sPinned">—</div><div class="sc-lbl">Pinned</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-ico">04</span>
+        <span class="sec-title">Account Info</span>
+        <span class="sec-num">/ identity</span>
+      </div>
+      <div class="row-list">
+        <div class="ri"><div class="ri-key"><span class="ri-ico">◎</span>Region</div><div class="ri-val" id="iRegion">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">◈</span>Language</div><div class="ri-val" id="iLang">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">◉</span>Account Type</div><div class="ri-val" id="iAccType">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">♡</span>Favorite List</div><div class="ri-val" id="iOpenFav">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">△</span>Liked Videos</div><div class="ri-val" id="iShowLiked">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">⌖</span>Room ID</div><div class="ri-val" id="iRoomId">—</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-ico">05</span>
+        <span class="sec-title">Commerce & Seller</span>
+        <span class="sec-num">/ shop</span>
+      </div>
+      <div class="row-list">
+        <div class="ri"><div class="ri-key"><span class="ri-ico">▣</span>Commerce User</div><div class="ri-val" id="cCommerce">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">▤</span>TT Seller</div><div class="ri-val" id="cSeller">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">▥</span>Has Shop</div><div class="ri-val" id="cHasShop">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">◍</span>Shop Region</div><div class="ri-val" id="cShopReg">—</div></div>
+        <div class="ri"><div class="ri-key"><span class="ri-ico">✦</span>Seller Level</div><div class="ri-val" id="cSellerLvl">—</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-ico">06</span>
+        <span class="sec-title">Interaction Settings</span>
+        <span class="sec-num">/ controls</span>
+      </div>
+      <div class="settings-grid">
+        <div class="stc"><div class="stc-icon">↓</div><div class="stc-lbl">Download</div><div class="stc-val" id="stDown">—</div></div>
+        <div class="stc"><div class="stc-icon">◫</div><div class="stc-lbl">Duet</div><div class="stc-val" id="stDuet">—</div></div>
+        <div class="stc"><div class="stc-icon">✂</div><div class="stc-lbl">Stitch</div><div class="stc-val" id="stStitch">—</div></div>
+        <div class="stc"><div class="stc-icon">◊</div><div class="stc-lbl">Comment</div><div class="stc-val" id="stComment">—</div></div>
+      </div>
+    </div>
+
+    <div class="section" id="autoSection" style="display:none">
+      <div class="sec-head">
+        <span class="sec-ico">07</span>
+        <span class="sec-title">Additional Available Data</span>
+        <span class="sec-num">/ auto</span>
+      </div>
+      <div class="section-note" id="autoHint">Auto-generated from any extra response fields that are easy to display.</div>
+      <div class="row-list" id="autoFields"></div>
+    </div>
+
+    <div class="card-footer">
+      <span class="card-footer-text">End of report</span>
+      <span class="card-footer-text">Powered by <span class="kelvio-inline">AH Analytics</span></span>
+    </div>
+
+  </div><!-- /result -->
+
+  <!-- COPY BAR -->
+  <div class="copy-bar" id="copyBar">
+    <div class="copy-bar-left">
+      <div class="copy-bar-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      </div>
+      <div>
+        <div class="copy-bar-title">Export Full Report</div>
+        <div class="copy-bar-sub">Plain-text format · all fields</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-soft); cursor: pointer; user-select: none;">
+        <input type="checkbox" id="includeExtraToggle" style="width: 16px; height: 16px; cursor: pointer;">
+        <span>Include Extra Fields</span>
+      </label>
+      <button id="copyBtn" type="button">
+        <svg viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Copy
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════ SHARE BAR ══════════ -->
+  <div class="share-bar no-sel" id="shareBar">
+    <div class="share-left">
+      <div class="share-title">Share AH Analytics</div>
+      <div class="share-sub">Spread the precision instrument</div>
+    </div>
+    <div class="share-icons">
+      <button class="share-btn sb-x" data-share="x" type="button" aria-label="Share on X (Twitter)" title="Share on X">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </button>
+      <button class="share-btn sb-fb" data-share="facebook" type="button" aria-label="Share on Facebook" title="Share on Facebook">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.99 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
+      </button>
+      <button class="share-btn sb-wa" data-share="whatsapp" type="button" aria-label="Share on WhatsApp" title="Share on WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+      </button>
+      <button class="share-btn sb-tg" data-share="telegram" type="button" aria-label="Share on Telegram" title="Share on Telegram">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+      </button>
+      <button class="share-btn sb-in" data-share="linkedin" type="button" aria-label="Share on LinkedIn" title="Share on LinkedIn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </button>
+      <button class="share-btn sb-rd" data-share="reddit" type="button" aria-label="Share on Reddit" title="Share on Reddit">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 01-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 01.042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 014.028 12.5c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 01.14-.197.35.35 0 01.238-.042l2.906.617a1.214 1.214 0 011.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 00-.231.094.33.33 0 000 .463c.842.842 2.484.91 2.961.91.477 0 2.105-.068 2.961-.91a.33.33 0 00.029-.464.33.33 0 00-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 00-.232-.095z"/></svg>
+      </button>
+      <button class="share-btn sb-link" data-share="copylink" type="button" aria-label="Copy page link" title="Copy page link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="share-toast" id="shareToast" role="status" aria-live="polite">Link copied to clipboard</div>
+
+  <footer>
+    <div class="foot-row">
+      <span>© <strong>AH Analytics</strong></span>
+      <span>AHAnalytics.io</span>
+      <span>Secured</span>
+    </div>
+    <div class="foot-mini">— precision instrument · est. mmxxv —</div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  // ═══════════════════════════════════════════════════════
+  // SECURITY HARDENING LAYER
+  // ═══════════════════════════════════════════════════════
+
+  // Freeze critical globals to prevent prototype pollution
+  try {
+    Object.freeze(Object.prototype);
+    Object.freeze(Array.prototype);
+    Object.freeze(String.prototype);
+  } catch(e) {}
+
+  // Anti-tampering: detect modified native functions
+  const NATIVE = {
+    fetch: window.fetch.bind(window),
+    setTimeout: window.setTimeout.bind(window),
+    clearTimeout: window.clearTimeout.bind(window),
+    JSON_parse: JSON.parse.bind(JSON),
+    JSON_stringify: JSON.stringify.bind(JSON),
+  };
+
+  // Disable right-click on sensitive areas (configurable)
+  // document.addEventListener('contextmenu', e => { if(e.target.closest('.no-sel')) e.preventDefault(); });
+
+  // Block common DevTools keyboard shortcuts on production (soft deterrent)
+  // Commented out by default — uncomment to enable strict mode
+  // document.addEventListener('keydown', function(e){
+  //   if (e.keyCode === 123) e.preventDefault();
+  //   if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) e.preventDefault();
+  //   if (e.ctrlKey && e.keyCode === 85) e.preventDefault();
+  // });
+
+  // Console warning
+  if (typeof console !== 'undefined' && console.log) {
+    const cssTitle = 'color:#e85a4f;font-size:24px;font-weight:bold;font-family:Georgia,serif;font-style:italic';
+    const cssWarn  = 'color:#0a0a0f;font-size:13px;font-family:monospace';
+    console.log('%cStop!', cssTitle);
+    console.log('%cThis is a browser feature intended for developers. Pasting code here may compromise your account.\nAH Analytics · AHAnalytics.io', cssWarn);
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // CONFIG
+  // ═══════════════════════════════════════════════════════
+  const BACKEND       = "https://tiktok-checker-api.onrender.com";
+  const RATE_LIMIT_MS = 8000;
+  const MAX_PER_MIN   = 6;
+  const MAX_PER_HOUR  = 40;
+  const REQ_TIMEOUT   = 22000;
+
+  // Allowed TikTok username pattern (strict)
+  const USERNAME_RX = /^[a-zA-Z0-9._]{2,24}$/;
+  // Reject pure-dot / pure-underscore / blocked patterns
+  const REJECT_RX   = /^[._]+$|admin|tiktok|root|system/i;
+
+  // ═══════════════════════════════════════════════════════
+  // STATE
+  // ═══════════════════════════════════════════════════════
+  let lastReq  = 0;
+  let reqCount = 0;
+  let winStart = Date.now();
+  let hourCount = 0;
+  let hourStart = Date.now();
+  let G = null;
+  let inFlight = false;
+
+  // Session token (anti-CSRF style — bound to this session)
+  const SESSION_TOKEN = (() => {
+    try {
+      const arr = new Uint8Array(16);
+      crypto.getRandomValues(arr);
+      return Array.from(arr).map(b => b.toString(16).padStart(2,'0')).join('');
+    } catch(e) { return Math.random().toString(36).slice(2); }
+  })();
+
+  // ═══════════════════════════════════════════════════════
+  // UTIL — SAFE DOM HELPERS (XSS-PROOF)
+  // ═══════════════════════════════════════════════════════
+  const g    = id => document.getElementById(id);
+  const show = id => { const el = g(id); if(el) el.style.display = "block"; };
+  const hide = id => { const el = g(id); if(el) el.style.display = "none"; };
+
+  // Safe text setter — never uses innerHTML for user data
+  function txt(id, val) {
+    const e = g(id);
+    if (!e) return;
+    e.textContent = (val !== null && val !== undefined && val !== "") ? String(val) : "—";
+  }
+
+  // Safe pill builder — returns DOM, not HTML string
+  function makePill(val, tLabel, fLabel) {
+    const span = document.createElement('span');
+    span.className = 'pill';
+    if (val === null || val === undefined) {
+      span.classList.add('p-gr');
+      span.textContent = 'N/A';
+    } else if (val) {
+      span.classList.add('p-g');
+      span.textContent = '✓ ' + tLabel;
+    } else {
+      span.classList.add('p-r');
+      span.textContent = '✕ ' + fLabel;
+    }
+    return span;
+  }
+  function setPill(id, val, tLabel, fLabel) {
+    const e = g(id);
+    if (!e) return;
+    e.textContent = '';
+    e.appendChild(makePill(val, tLabel, fLabel));
+  }
+
+  function v(val, fallback = "—") {
+    return (val !== null && val !== undefined && val !== "") ? val : fallback;
+  }
+
+  const KNOWN_DISPLAY_KEYS = new Set([
+    "success", "error", "avatar", "nickname", "username", "verified", "isEnterpriseVerified",
+    "ttSeller", "commerceUser", "privateAccount", "isBanned", "isUnderAge", "bio", "bioLink",
+    "instagramLink", "youtubeLink", "twitterLink", "creationDate", "creationTimestamp",
+    "accountAge", "accountAgeDays", "followers", "following", "likes", "videos",
+    "totalViews", "friends", "digg", "liveCount", "pinnedVideoCount", "region",
+    "language", "openFavorite", "showLiked", "roomId", "hasShop", "shopRegion",
+    "sellerLevel", "downloadSetting", "duetSetting", "stitchSetting", "commentSetting"
+  ]);
+
+  function toLabel(key) {
+    return String(key)
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .replace(/[_.]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/\b\w/g, ch => ch.toUpperCase());
+  }
+
+  function flattenEasyFields(input, prefix = '', depth = 0, out = []) {
+    if (input === null || input === undefined) return out;
+    if (depth > 4) return out;
+
+    if (Array.isArray(input)) {
+      const simple = input.every(v => v === null || ['string','number','boolean'].includes(typeof v));
+      if (simple && prefix) out.push({ key: prefix, value: input });
+      else input.forEach((item, i) => flattenEasyFields(item, prefix ? `${prefix}.${i}` : String(i), depth + 1, out));
+      return out;
+    }
+
+    if (typeof input === 'object') {
+      Object.keys(input).forEach(key => {
+        const next = prefix ? `${prefix}.${key}` : key;
+        flattenEasyFields(input[key], next, depth + 1, out);
+      });
+      return out;
+    }
+
+    if (prefix) out.push({ key: prefix, value: input });
+    return out;
+  }
+
+  function formatDynamicValue(val) {
+    if (Array.isArray(val)) {
+      return val.length ? val.map(item => formatDynamicValue(item)).join(', ') : '—';
+    }
+    if (typeof val === 'boolean') return val ? 'Yes' : 'No';
+    if (typeof val === 'number') return Number.isFinite(val) ? fmt(val) : '—';
+    if (typeof val === 'string') return val.trim() || '—';
+    return (val !== null && val !== undefined) ? String(val) : '—';
+  }
+
+  function isUnwantedField(key) {
+    // Filter out junk/internal fields
+    const unwantedPatterns = [
+      /^_/,                          // Private fields (starting with _)
+      /^__/,                         // Dunder attributes
+      /\bId$|\bid$/i,                // Generic ID fields
+      /\bid[Ss]$|\bID[Ss]?$/,        // IDs (plural or singular)
+      /^(temp|cache|raw|debug)/i,    // Temporary/debug data
+      /[Tt]oken/,                    // Tokens
+      /[Ss]ession/,                  // Session data
+      /[Hh]ash/,                     // Hashes
+      /[Ss]erialized/,               // Serialized data
+      /meta\./, /metadata\./,        // Metadata fields
+      /internal/i,                   // Internal markers
+      /\.0$|\.1$|\.2$/,              // Nested array indices
+      /[Aa]vailable.*[Ff]ield/,      // Available Fields sections
+      /[Rr]aw.*[Ff]ield/,            // Raw Fields
+    ];
+    
+    return unwantedPatterns.some(pattern => pattern.test(key));
+  }
+
+  function collectExtraFields(d) {
+    return flattenEasyFields(d)
+      .filter(item => 
+        !KNOWN_DISPLAY_KEYS.has(item.key) && 
+        !isUnwantedField(item.key) &&
+        item.value !== null && 
+        item.value !== undefined && 
+        item.value !== '' &&
+        !(Array.isArray(item.value) && item.value.length === 0) &&
+        !(typeof item.value === 'object' && Object.keys(item.value).length === 0)
+      )
+      .sort((a, b) => a.key.localeCompare(b.key));
+  }
+
+  function renderExtraFields(d) {
+    const sec = g('autoSection');
+    const list = g('autoFields');
+    if (!sec || !list) return;
+    list.textContent = '';
+
+    const extras = collectExtraFields(d);
+    if (!extras.length) {
+      sec.style.display = 'none';
+      return;
+    }
+
+    extras.forEach(({ key, value }) => {
+      const row = document.createElement('div');
+      row.className = 'ri';
+
+      const keyEl = document.createElement('div');
+      keyEl.className = 'ri-key';
+      const icon = document.createElement('span');
+      icon.className = 'ri-ico';
+      icon.textContent = '⋯';
+      keyEl.appendChild(icon);
+      keyEl.appendChild(document.createTextNode(toLabel(key)));
+
+      const valEl = document.createElement('div');
+      valEl.className = 'ri-val';
+      if (typeof value === 'boolean') {
+        valEl.appendChild(makePill(value, 'Yes', 'No'));
+      } else {
+        const out = formatDynamicValue(value);
+        valEl.textContent = out;
+        if (String(out).length > 34 || String(key).includes('.')) valEl.classList.add('is-mono');
+      }
+
+      row.appendChild(keyEl);
+      row.appendChild(valEl);
+      list.appendChild(row);
+    });
+
+    sec.style.display = 'block';
+  }
+
+  function fmt(n) {
+    if (n === null || n === undefined) return "—";
+    n = Number(n);
+    if (!isFinite(n)) return "—";
+    if (n >= 1e9) return (n/1e9).toFixed(2) + "B";
+    if (n >= 1e6) return (n/1e6).toFixed(2) + "M";
+    if (n >= 1e3) return (n/1e3).toFixed(1) + "K";
+    return n.toLocaleString();
+  }
+  function setVal(id, n) {
+    txt(id, (n !== null && n !== undefined) ? fmt(n) : "—");
+  }
+
+  // Strict URL escape — only http/https allowed
+  function safeUrl(url) {
+    if (typeof url !== 'string' || url.length > 2048) return null;
+    try {
+      const u = new URL(url.startsWith("http") ? url : "https://" + url);
+      if (!["https:", "http:"].includes(u.protocol)) return null;
+      // Block private/local IPs
+      const h = u.hostname.toLowerCase();
+      if (/^(localhost|127\.|10\.|192\.168\.|169\.254\.|0\.0\.0\.0)/.test(h)) return null;
+      if (/^172\.(1[6-9]|2\d|3[01])\./.test(h)) return null;
+      return u.href;
+    } catch { return null; }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // INPUT VALIDATION — Strict
+  // ═══════════════════════════════════════════════════════
+  function sanitizeInput(s) {
+    if (typeof s !== 'string') return '';
+    return s.replace(/[^a-zA-Z0-9._]/g, "").slice(0, 24);
+  }
+
+  function validateUsername(u) {
+    if (!u || u.length < 2 || u.length > 24) return 'Username must be 2–24 characters.';
+    if (!USERNAME_RX.test(u)) return 'Only letters, numbers, dot (.) and underscore (_) allowed.';
+    if (REJECT_RX.test(u))    return 'Invalid username pattern.';
+    return null;
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // RATE LIMITING — Multi-tier
+  // ═══════════════════════════════════════════════════════
+  function canRequest() {
+    const now = Date.now();
+    if (inFlight) { showErr('A request is already in progress.'); return false; }
+    if (now - winStart > 60000)   { reqCount  = 0; winStart  = now; }
+    if (now - hourStart > 3600000){ hourCount = 0; hourStart = now; }
+
+    if (now - lastReq < RATE_LIMIT_MS) {
+      const w = Math.ceil((RATE_LIMIT_MS - (now - lastReq)) / 1000);
+      showErr(`Please wait ${w}s before the next request.`);
+      return false;
+    }
+    if (reqCount >= MAX_PER_MIN) {
+      showErr('Too many requests. Please wait a minute.');
+      return false;
+    }
+    if (hourCount >= MAX_PER_HOUR) {
+      showErr('Hourly limit reached. Please try again later.');
+      return false;
+    }
+    return true;
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // HONEYPOT CHECK
+  // ═══════════════════════════════════════════════════════
+  function isHoneypotTripped() {
+    const hp = g('hp_field');
+    return hp && hp.value !== '';
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // MAIN — CHECK USER
+  // ═══════════════════════════════════════════════════════
+  async function checkUser() {
+    if (isHoneypotTripped()) {
+      // Silent fail — do not reveal honeypot
+      showErr('Invalid request.');
+      return;
+    }
+    if (!canRequest()) return;
+
+    const raw      = g("usernameInput").value.trim().replace(/^@/, "");
+    const username = sanitizeInput(raw);
+    const err = validateUsername(username);
+    if (err) return showErr(err);
+
+    g("result").style.display  = "none";
+    g("copyBar").style.display = "none";
+    hide("errorBox");
+    show("loading");
+    g("checkBtn").disabled = true;
+    G = null;
+    inFlight = true;
+    lastReq = Date.now();
+    reqCount++;
+    hourCount++;
+
+    const ctrl  = new AbortController();
+    const timer = NATIVE.setTimeout(() => ctrl.abort(), REQ_TIMEOUT);
+
+    try {
+      const res = await NATIVE.fetch(`${BACKEND}/tiktok/${encodeURIComponent(username)}`, {
+        method: 'GET',
+        signal: ctrl.signal,
+        headers: {
+          "Accept": "application/json",
+          "X-Client-Session": SESSION_TOKEN,
+          "X-Client-Version": "kelvio/2.0"
+        },
+        credentials: "omit",
+        referrerPolicy: "no-referrer",
+        mode: "cors",
+        cache: "no-store",
+        redirect: "error",
+      });
+      NATIVE.clearTimeout(timer);
+
+      if (!res.ok) throw new Error(`Server error (${res.status})`);
+
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) throw new Error('Unexpected response format.');
+
+      const text = await res.text();
+      if (text.length > 200000) throw new Error('Response too large.');
+
+      const d = NATIVE.JSON_parse(text);
+      if (!d || typeof d !== 'object') throw new Error('Invalid response.');
+      if (!d.success) throw new Error(d.error || "User not found.");
+
+      G = d;
+      render(d, username);
+    } catch(e) {
+      NATIVE.clearTimeout(timer);
+      if (e.name === "AbortError") showErr("Request timed out. Try again.");
+      else showErr((e && e.message) ? String(e.message).slice(0, 140) : "Something went wrong.");
+    } finally {
+      g("checkBtn").disabled = false;
+      hide("loading");
+      inFlight = false;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // RENDER — All user data via textContent (XSS-proof)
+  // ═══════════════════════════════════════════════════════
+  function render(d, username) {
+    const wrap = g("avatarWrap");
+    wrap.textContent = '';
+    if (d.avatar && typeof d.avatar === 'string') {
+      const safeAv = safeUrl(d.avatar);
+      if (safeAv) {
+        const img = document.createElement("img");
+        img.className = "avatar";
+        img.alt = "";
+        img.referrerPolicy = "no-referrer";
+        img.crossOrigin = "anonymous";
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.onerror = () => {
+          wrap.textContent = '';
+          const fb = document.createElement('div');
+          fb.className = 'avatar-fallback';
+          fb.textContent = '◐';
+          wrap.appendChild(fb);
+        };
+        img.src = safeAv;
+        wrap.appendChild(img);
+      } else {
+        const fb = document.createElement('div');
+        fb.className = 'avatar-fallback';
+        fb.textContent = '◐';
+        wrap.appendChild(fb);
+      }
+    } else {
+      const fb = document.createElement('div');
+      fb.className = 'avatar-fallback';
+      fb.textContent = '◐';
+      wrap.appendChild(fb);
+    }
+
+    txt("pName",   d.nickname || username);
+    txt("pHandle", "@" + (d.username || username));
+
+    // Badges — safe DOM construction
+    const badgeWrap = g("pBadges");
+    badgeWrap.textContent = '';
+    const addBadge = (text, cls) => {
+      const s = document.createElement('span');
+      s.className = 'badge ' + cls;
+      s.textContent = text;
+      badgeWrap.appendChild(s);
+    };
+    if (d.verified)             addBadge("✓ Verified",   "b-v");
+    if (d.isEnterpriseVerified) addBadge("★ Enterprise", "b-e");
+    if (d.ttSeller)             addBadge("◫ Seller",     "b-s");
+    if (d.commerceUser)         addBadge("▣ Commerce",   "b-c");
+    if (d.privateAccount)       addBadge("◉ Private",    "b-p");
+    if (d.isBanned)             addBadge("✕ Banned",     "b-bn");
+
+    // Bio
+    const hasBio = d.bio || d.bioLink || d.instagramLink || d.youtubeLink || d.twitterLink;
+    if (hasBio) {
+      g("secBio").style.display = "block";
+      txt("bioText", d.bio || "");
+      const sl = g("socialLinks");
+      sl.textContent = '';
+      const addLink = (label, url, cls) => {
+        const safe = safeUrl(url);
+        if (!safe) return;
+        const a = document.createElement('a');
+        a.className = 'slink ' + cls;
+        a.href = safe;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer nofollow';
+        a.textContent = label;
+        sl.appendChild(a);
+      };
+      if (d.bioLink)       addLink("→ Bio Link",  d.bioLink,       "sl-bio");
+      if (d.instagramLink) addLink("◐ Instagram", d.instagramLink, "sl-ig");
+      if (d.youtubeLink)   addLink("▶ YouTube",   d.youtubeLink,   "sl-yt");
+      if (d.twitterLink)   addLink("◇ Twitter",   d.twitterLink,   "sl-tw");
+    } else {
+      g("secBio").style.display = "none";
+    }
+
+    txt("dCreated", v(d.creationDate, "Not available"));
+    txt("dStamp",   d.creationTimestamp ? "Unix · " + d.creationTimestamp : "");
+    txt("dAge",     v(d.accountAge,   "Unknown"));
+    txt("dDays",    d.accountAgeDays  ? d.accountAgeDays + " days total" : "Date unavailable");
+
+    setVal("sFollowers", d.followers);
+    setVal("sFollowing", d.following);
+    setVal("sLikes",     d.likes);
+    setVal("sVideos",    d.videos);
+    setVal("sViews",     d.totalViews);
+    setVal("sFriends",   d.friends);
+    setVal("sDigg",      d.digg);
+    setVal("sLives",     d.liveCount);
+    setVal("sPinned",    d.pinnedVideoCount);
+
+    txt("iRegion",   v(d.region,   "—"));
+    txt("iLang",     v(d.language, "—"));
+    setPill("iAccType",   d.privateAccount !== null ? !d.privateAccount : null, "Public", "Private");
+    setPill("iOpenFav",   d.openFavorite,  "Public",  "Hidden");
+    setPill("iShowLiked", d.showLiked,     "Visible", "Hidden");
+    txt("iRoomId",   v(d.roomId, "—"));
+
+    setPill("cCommerce",   d.commerceUser, "Yes", "No");
+    setPill("cSeller",     d.ttSeller,     "Yes", "No");
+    setPill("cHasShop",    d.hasShop,      "Yes", "No");
+    txt("cShopReg",        v(d.shopRegion, "—"));
+    txt("cSellerLvl",      d.sellerLevel !== null && d.sellerLevel !== undefined ? String(d.sellerLevel) : "—");
+
+    setSt("stDown",    d.downloadSetting);
+    setSt("stDuet",    d.duetSetting);
+    setSt("stStitch",  d.stitchSetting);
+    setSt("stComment", d.commentSetting);
+
+    renderExtraFields(d);
+
+    g("result").style.display  = "block";
+    g("copyBar").style.display = "flex";
+    resetCopyBtn();
+  }
+
+  function setSt(id, n) {
+    const e = g(id);
+    if (!e) return;
+    if (n === null || n === undefined) { e.textContent = "N/A"; e.className = "stc-val sv-na"; return; }
+    if (n === 0)      { e.textContent = "All";     e.className = "stc-val sv-on"; }
+    else if (n === 1) { e.textContent = "Friends"; e.className = "stc-val sv-on"; }
+    else if (n === 2) { e.textContent = "Off";     e.className = "stc-val sv-off"; }
+    else              { e.textContent = String(n); e.className = "stc-val sv-na"; }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // COPY REPORT
+  // ═══════════════════════════════════════════════════════
+  function copyReport() {
+    if (!G) return;
+    const d = G;
+    const yn  = val => val === true ? "Yes"     : val === false ? "No"      : "N/A";
+    const pv  = val => val === true ? "Public"  : val === false ? "Private" : "N/A";
+    const vis = val => val === true ? "Visible" : val === false ? "Hidden"  : "N/A";
+    const stv = val => val === 0 ? "All (Everyone)" : val === 1 ? "Friends Only" : val === 2 ? "Off" : "N/A";
+    const num = val => (val !== null && val !== undefined) ? Number(val).toLocaleString() : "N/A";
+    const str = val => (val !== null && val !== undefined && val !== "") ? String(val).slice(0, 500) : "N/A";
+    const now = new Date().toLocaleString();
+    
+    // Check if "Include Extra Fields" toggle is ON
+    const includeExtra = g("includeExtraToggle") && g("includeExtraToggle").checked;
+    const extraFields = includeExtra ? collectExtraFields(d) : [];
+    const extraLines = extraFields.length
+      ? [
+          `─── 08 · AUTO-DISCOVERED FIELDS ──────────────`,
+          ...extraFields.map(({ key, value }) => `  ${toLabel(key).padEnd(16, ' ')} : ${formatDynamicValue(value)}`),
+          ``
+        ]
+      : [];
+    const lines = [
+      `┌──────────────────────────────────────────────┐`,
+      `│        AH Analytics  —  Profile Report        │`,
+      `│              AHAnalytics.io · v2.0                │`,
+      `└──────────────────────────────────────────────┘`,
+      `  Generated · ${now}`,
+      ``,
+      `─── 01 · PROFILE ─────────────────────────────`,
+      `  Name             : ${str(d.nickname)}`,
+      `  Username         : @${str(d.username)}`,
+      `  Verified         : ${yn(d.verified)}`,
+      `  Enterprise Verif : ${yn(d.isEnterpriseVerified)}`,
+      `  Account Type     : ${pv(d.privateAccount !== null ? !d.privateAccount : null)}`,
+      `  Banned           : ${yn(d.isBanned)}`,
+      `  Under Age        : ${yn(d.isUnderAge)}`,
+      `  Bio              : ${str(d.bio)}`,
+      ``,
+      `─── 02 · ACCOUNT AGE ─────────────────────────`,
+      `  Created On       : ${str(d.creationDate)}`,
+      `  Unix Timestamp   : ${str(d.creationTimestamp)}`,
+      `  Account Age      : ${str(d.accountAge)}`,
+      `  Total Days       : ${num(d.accountAgeDays)}`,
+      ``,
+      `─── 03 · STATISTICS ──────────────────────────`,
+      `  Followers        : ${num(d.followers)}`,
+      `  Following        : ${num(d.following)}`,
+      `  Total Likes      : ${num(d.likes)}`,
+      `  Videos           : ${num(d.videos)}`,
+      `  Total Views      : ${num(d.totalViews)}`,
+      `  Friends          : ${num(d.friends)}`,
+      `  Digg Count       : ${num(d.digg)}`,
+      `  Lives            : ${num(d.liveCount)}`,
+      `  Pinned Videos    : ${num(d.pinnedVideoCount)}`,
+      ``,
+      `─── 04 · ACCOUNT INFO ────────────────────────`,
+      `  Region           : ${str(d.region)}`,
+      `  Language         : ${str(d.language)}`,
+      `  Favorite List    : ${pv(d.openFavorite)}`,
+      `  Liked Videos     : ${vis(d.showLiked)}`,
+      `  Room ID          : ${str(d.roomId)}`,
+      ``,
+      `─── 05 · COMMERCE & SELLER ───────────────────`,
+      `  Commerce User    : ${yn(d.commerceUser)}`,
+      `  TT Seller        : ${yn(d.ttSeller)}`,
+      `  Has Shop         : ${yn(d.hasShop)}`,
+      `  Shop Region      : ${str(d.shopRegion)}`,
+      `  Seller Level     : ${str(d.sellerLevel)}`,
+      ``,
+      `─── 06 · INTERACTION SETTINGS ────────────────`,
+      `  Download         : ${stv(d.downloadSetting)}`,
+      `  Duet             : ${stv(d.duetSetting)}`,
+      `  Stitch           : ${stv(d.stitchSetting)}`,
+      `  Comment          : ${stv(d.commentSetting)}`,
+      ``,
+      `─── 07 · SOCIAL LINKS ────────────────────────`,
+      `  Bio Link         : ${str(d.bioLink)}`,
+      `  Instagram        : ${str(d.instagramLink)}`,
+      `  YouTube          : ${str(d.youtubeLink)}`,
+      `  Twitter/X        : ${str(d.twitterLink)}`,
+      ``,
+      ...extraLines,
+      `──────────────────────────────────────────────`,
+      `  AH Analytics · AHAnalytics.io · zero data retention`,
+      `──────────────────────────────────────────────`,
+    ];
+    const text = lines.join("\n");
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(copiedFeedback).catch(() => fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;opacity:0;";
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand("copy"); copiedFeedback(); }
+    catch { showErr("Could not copy automatically."); }
+    document.body.removeChild(ta);
+  }
+
+  function copiedFeedback() {
+    const btn = g("copyBtn");
+    btn.classList.add("done");
+    btn.textContent = '';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 24 24');
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z');
+    svg.appendChild(path);
+    btn.appendChild(svg);
+    btn.appendChild(document.createTextNode(' Copied'));
+    NATIVE.setTimeout(resetCopyBtn, 2800);
+  }
+
+  function resetCopyBtn() {
+    const btn = g("copyBtn");
+    btn.classList.remove("done");
+    btn.textContent = '';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 24 24');
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z');
+    svg.appendChild(path);
+    btn.appendChild(svg);
+    btn.appendChild(document.createTextNode(' Copy'));
+  }
+
+  function showErr(msg) {
+    hide("loading");
+    const e = g("errorBox");
+    e.textContent = "⚠ " + String(msg).slice(0, 180);
+    e.style.display = "block";
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // EVENT WIRING
+  // ═══════════════════════════════════════════════════════
+  g("checkBtn").addEventListener("click", checkUser, { passive: true });
+  g("copyBtn").addEventListener("click", copyReport, { passive: true });
+
+  g("usernameInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); checkUser(); }
+  });
+  g("usernameInput").addEventListener("paste", e => {
+    e.preventDefault();
+    const p = (e.clipboardData || window.clipboardData).getData("text") || '';
+    g("usernameInput").value = sanitizeInput(p.trim().replace(/^@/, ""));
+  });
+  g("usernameInput").addEventListener("input", e => {
+    // Live-sanitize as the user types
+    const cleaned = sanitizeInput(e.target.value);
+    if (cleaned !== e.target.value) e.target.value = cleaned;
+  });
+
+  // Prevent drag-and-drop of files onto input
+  ['dragover','drop'].forEach(ev =>
+    window.addEventListener(ev, e => e.preventDefault(), false)
+  );
+
+  // Clear sensitive state on unload
+  window.addEventListener('beforeunload', () => { G = null; });
+
+  // ══════════════════════════════════════════════════════
+  // DEMO MODE · sample response so users see how it looks
+  // ══════════════════════════════════════════════════════
+  const DEMO_DATA = {
+    success: true,
+    avatar: "",
+    nickname: "Demo Creator",
+    username: "demo.ahanalytics",
+    verified: true,
+    isEnterpriseVerified: false,
+    ttSeller: true,
+    commerceUser: true,
+    privateAccount: false,
+    isBanned: false,
+    isUnderAge: false,
+    bio: "✨ Sample TikTok profile rendered by AH Analytics.\nThis is what a real report looks like.",
+    bioLink: "https://AH Analytics.io",
+    instagramLink: "https://instagram.com/demo",
+    youtubeLink: "https://youtube.com/@demo",
+    twitterLink: "https://x.com/demo",
+    creationDate: "March 14, 2019",
+    creationTimestamp: 1552521600,
+    accountAge: "6 years, 2 months",
+    accountAgeDays: 2265,
+    followers: 1284530,
+    following: 412,
+    likes: 28940000,
+    videos: 487,
+    totalViews: 184320000,
+    friends: 380,
+    digg: 1240,
+    liveCount: 23,
+    pinnedVideoCount: 3,
+    region: "US",
+    language: "en",
+    openFavorite: true,
+    showLiked: false,
+    roomId: "7320948512763421100",
+    hasShop: true,
+    shopRegion: "US",
+    sellerLevel: 4,
+    downloadSetting: 0,
+    duetSetting: 0,
+    stitchSetting: 1,
+    commentSetting: 0,
+    engagementRate: "7.42%",
+    avgViewsPerVideo: 378480,
+    contentCategory: "Lifestyle & Education"
+  };
+
+  function runDemo() {
+    if (inFlight) return;
+    hide("errorBox");
+    hide("loading");
+    g("checkBtn").disabled = false;
+    G = DEMO_DATA;
+    try { render(DEMO_DATA, DEMO_DATA.username); } catch(e){ /* swallow */ }
+    // Show demo banner above results
+    const banner = g("demoBanner");
+    if (banner) banner.classList.add("is-on");
+    const btn = g("demoBtn");
+    if (btn) btn.setAttribute("data-active", "true");
+    // Scroll to results
+    NATIVE.setTimeout(() => {
+      const r = g("result");
+      if (r) r.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  }
+
+  // Clear demo banner whenever a real request fires
+  const _origCheckUser = checkUser;
+  // Wrap by listening on the input — simpler: clear banner when user types
+  g("usernameInput").addEventListener("focus", () => {
+    const banner = g("demoBanner");
+    if (banner) banner.classList.remove("is-on");
+    const btn = g("demoBtn");
+    if (btn) btn.removeAttribute("data-active");
+  });
+
+  const demoBtn = g("demoBtn");
+  if (demoBtn) demoBtn.addEventListener("click", runDemo, { passive: true });
+
+  // ══════════════════════════════════════════════════════
+  // GUIDE PANEL TOGGLE
+  // ══════════════════════════════════════════════════════
+  const guideBtn = g("guideBtn");
+  const guidePanel = g("guidePanel");
+  if (guideBtn && guidePanel) {
+    guideBtn.addEventListener("click", () => {
+      const open = guidePanel.classList.toggle("is-open");
+      guideBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      guidePanel.setAttribute("aria-hidden", open ? "false" : "true");
+      guideBtn.setAttribute("data-active", open ? "true" : "false");
+      if (open) {
+        NATIVE.setTimeout(() => guidePanel.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+      }
+    }, { passive: true });
+  }
+
+  // ══════════════════════════════════════════════════════
+  // SOCIAL SHARE BUTTONS
+  // ══════════════════════════════════════════════════════
+  function showToast(msg) {
+    const t = g("shareToast");
+    if (!t) return;
+    t.textContent = String(msg).slice(0, 80);
+    t.classList.add("is-show");
+    NATIVE.setTimeout(() => t.classList.remove("is-show"), 1800);
+  }
+
+  function openShare(url) {
+    // safe window.open with hardened opts
+    const w = window.open(url, "_blank", "noopener,noreferrer,width=640,height=560");
+    if (w) { try { w.opener = null; } catch(e){} }
+  }
+
+  function buildShareUrl(network, pageUrl, title) {
+    const u = encodeURIComponent(pageUrl);
+    const t = encodeURIComponent(title);
+    switch (network) {
+      case "x":        return `https://twitter.com/intent/tweet?url=${u}&text=${t}`;
+      case "facebook": return `https://www.facebook.com/sharer/sharer.php?u=${u}`;
+      case "whatsapp": return `https://api.whatsapp.com/send?text=${t}%20${u}`;
+      case "telegram": return `https://t.me/share/url?url=${u}&text=${t}`;
+      case "linkedin": return `https://www.linkedin.com/sharing/share-offsite/?url=${u}`;
+      case "reddit":   return `https://www.reddit.com/submit?url=${u}&title=${t}`;
+      default: return null;
+    }
+  }
+
+  async function copyPageLink(pageUrl) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(pageUrl);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = pageUrl;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "absolute";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      showToast("✓ Link copied to clipboard");
+    } catch(e) {
+      showToast("Couldn't copy — please copy URL manually");
+    }
+  }
+
+  const shareBar = g("shareBar");
+  if (shareBar) {
+    shareBar.addEventListener("click", async (ev) => {
+      const btn = ev.target.closest("[data-share]");
+      if (!btn) return;
+      const network = btn.getAttribute("data-share");
+      const pageUrl = window.location.href;
+      const title   = "AH Analytics — a precision instrument for TikTok profile forensics";
+      if (network === "copylink") {
+        await copyPageLink(pageUrl);
+        return;
+      }
+      const url = buildShareUrl(network, pageUrl, title);
+      if (url) openShare(url);
+    }, { passive: true });
+  }
+
+  // Detect if loaded in an iframe (clickjacking defense)
+  if (window.top !== window.self) {
+    try { window.top.location = window.self.location; } catch(e) {
+      document.body.innerHTML = '';
+    }
+  }
+
+})();
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
